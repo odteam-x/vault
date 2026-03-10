@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VAULT — Portfolio de Logros</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+  <div class="noise" aria-hidden="true"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar" aria-label="Navegación">
+    <div class="sidebar-brand">
+      <div class="brand-diamond" aria-hidden="true">
+        <svg viewBox="0 0 36 36" fill="none"><path d="M18 2 L34 18 L18 34 L2 18 Z" stroke="#3A7A96" stroke-width="1.5" fill="none"/><path d="M18 8 L28 18 L18 28 L8 18 Z" stroke="#A8CDD6" stroke-width="0.8" fill="rgba(58,122,150,0.15)"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">VAULT</div>
+        <div class="brand-tagline">Portfolio Personal</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Secciones">
+      <button class="nav-item active" data-section="logros" aria-current="page">
+        <span class="nav-num" aria-hidden="true">01</span>
+        <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 010-5H6"/><path d="M18 9h1.5a2.5 2.5 0 000-5H18"/><path d="M18 2H6v7a6 6 0 0012 0V2z"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M4 22h16"/></svg>
+        <span class="nav-label">Logros</span>
+        <span class="nav-bar" aria-hidden="true"></span>
+      </button>
+      <button class="nav-item" data-section="voluntariados">
+        <span class="nav-num" aria-hidden="true">02</span>
+        <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <span class="nav-label">Voluntariados</span>
+        <span class="nav-bar" aria-hidden="true"></span>
+      </button>
+      <button class="nav-item" data-section="personales">
+        <span class="nav-num" aria-hidden="true">03</span>
+        <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="nav-label">Personales</span>
+        <span class="nav-bar" aria-hidden="true"></span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-export-btn" id="exportCsvBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar CSV
+      </button>
+    </div>
+  </aside>
+
+  <!-- MOBILE HEADER -->
+  <header class="topbar" role="banner">
+    <button class="burger" id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar">
+      <span></span><span></span><span></span>
+    </button>
+    <span class="topbar-name">VAULT</span>
+    <div aria-hidden="true" style="width:44px"></div>
+  </header>
+  <div class="overlay" id="overlay" aria-hidden="true"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="mainContent">
+
+    <!-- LOGROS -->
+    <section id="section-logros" class="section active" aria-labelledby="h-logros">
+      <header class="sec-hero">
+        <div class="sec-hero-left">
+          <div class="sec-index" aria-hidden="true">/ 01</div>
+          <h2 id="h-logros" class="sec-title">LOGROS &amp;<br>RECONOCIMIENTOS</h2>
+          <p class="sec-sub">Premios, certificaciones y hitos profesionales</p>
+        </div>
+        <button class="add-btn" id="newLogroBtn" aria-haspopup="dialog">
+          <span class="add-btn-cross" aria-hidden="true">+</span>Nuevo logro
+        </button>
+      </header>
+      <div class="stats-strip" id="logros-stats" aria-live="polite"></div>
+      <div class="searchbar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="searchbar-ico" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="logros-search" class="searchbar-input" placeholder="Buscar por título, etiqueta…" aria-label="Buscar logros" />
+      </div>
+      <div class="grid" id="logros-list" role="list" aria-live="polite"></div>
+      <div class="pagination" id="logros-pagination" role="navigation"></div>
+    </section>
+
+    <!-- VOLUNTARIADOS -->
+    <section id="section-voluntariados" class="section" aria-labelledby="h-vol" hidden>
+      <header class="sec-hero">
+        <div class="sec-hero-left">
+          <div class="sec-index" aria-hidden="true">/ 02</div>
+          <h2 id="h-vol" class="sec-title">VOLUNTARIADOS</h2>
+          <p class="sec-sub">Contribuciones a la comunidad y causas sociales</p>
+        </div>
+        <button class="add-btn" id="newVolBtn" aria-haspopup="dialog">
+          <span class="add-btn-cross" aria-hidden="true">+</span>Nuevo voluntariado
+        </button>
+      </header>
+      <div class="stats-strip" id="vol-stats" aria-live="polite"></div>
+      <div class="searchbar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="searchbar-ico" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="vol-search" class="searchbar-input" placeholder="Buscar por actividad, organización…" aria-label="Buscar voluntariados" />
+      </div>
+      <div class="grid" id="vol-list" role="list" aria-live="polite"></div>
+      <div class="pagination" id="vol-pagination" role="navigation"></div>
+    </section>
+
+    <!-- PERSONALES -->
+    <section id="section-personales" class="section" aria-labelledby="h-pers" hidden>
+      <header class="sec-hero">
+        <div class="sec-hero-left">
+          <div class="sec-index" aria-hidden="true">/ 03</div>
+          <h2 id="h-pers" class="sec-title">LOGROS<br>PERSONALES</h2>
+          <p class="sec-sub"><span class="badge-priv">Privado</span> Metas e hitos personales</p>
+        </div>
+        <button class="add-btn" id="newPersBtn" aria-haspopup="dialog">
+          <span class="add-btn-cross" aria-hidden="true">+</span>Nuevo logro
+        </button>
+      </header>
+      <div class="stats-strip" id="pers-stats" aria-live="polite"></div>
+      <div class="searchbar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="searchbar-ico" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="pers-search" class="searchbar-input" placeholder="Buscar logros personales…" aria-label="Buscar personales" />
+      </div>
+      <div class="grid" id="pers-list" role="list" aria-live="polite"></div>
+      <div class="pagination" id="pers-pagination" role="navigation"></div>
+    </section>
+
+  </main>
+
+  <!-- ===== MODAL LOGRO ===== -->
+  <div class="modal-bg" id="modal-logro" role="dialog" aria-modal="true" aria-labelledby="mt-logro" hidden>
+    <div class="modal">
+      <div class="modal-redline" aria-hidden="true"></div>
+      <div class="modal-head">
+        <h3 id="mt-logro" class="modal-title">NUEVO LOGRO</h3>
+        <button class="modal-close" aria-label="Cerrar" data-close="modal-logro">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="form-logro" class="mform" novalidate>
+        <input type="hidden" id="logro-id" />
+        <div class="fg">
+          <label class="fl req" for="logro-titulo">Título</label>
+          <input type="text" id="logro-titulo" class="fi" placeholder="Ej. Premio al mejor proyecto…" required maxlength="200" />
+          <span class="fe" id="logro-titulo-err" role="alert"></span>
+        </div>
+        <div class="fg">
+          <label class="fl" for="logro-desc">Descripción</label>
+          <textarea id="logro-desc" class="fta" rows="3" placeholder="Describe brevemente este logro…" maxlength="1000"></textarea>
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl" for="logro-puesto">Puesto / Lugar</label>
+            <input type="text" id="logro-puesto" class="fi" placeholder="Ej. 1er lugar…" maxlength="100" />
+          </div>
+          <div class="fg">
+            <label class="fl" for="logro-beneficios">Beneficios</label>
+            <input type="text" id="logro-beneficios" class="fi" placeholder="Ej. Beca, Premio…" maxlength="200" />
+          </div>
+        </div>
+        <fieldset class="ffs">
+          <legend class="fl">Fechas</legend>
+          <div class="fr">
+            <div class="fg">
+              <label class="fl" for="logro-fecha-inicio">Inicio</label>
+              <input type="date" id="logro-fecha-inicio" class="fi" />
+            </div>
+            <div class="fg">
+              <label class="fl" for="logro-fecha-fin">Fin</label>
+              <input type="date" id="logro-fecha-fin" class="fi" />
+              <label class="fcl"><input type="checkbox" id="logro-presente" class="fck" /><span>En curso / Presente</span></label>
+            </div>
+          </div>
+        </fieldset>
+        <div class="fg">
+          <label class="fl" for="logro-tags">Etiquetas</label>
+          <input type="text" id="logro-tags" class="fi" placeholder="tecnología, académico…" maxlength="300" />
+          <span class="fh">Separa con comas</span>
+        </div>
+        <!-- CERTIFICADO -->
+        <div class="fg">
+          <label class="fl">Certificado / Imagen</label>
+          <div class="upzone" id="logro-upzone" role="button" tabindex="0" aria-label="Subir certificado">
+            <input type="file" id="logro-cert" class="upinput" accept="image/*" />
+            <div class="upinner" id="logro-upinner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Arrastra o haz clic</span>
+              <span class="up-hint">JPG, PNG — máx. 2MB (se comprime)</span>
+            </div>
+            <div class="uppreview" id="logro-uppreview" hidden>
+              <img id="logro-img-preview" src="" alt="Vista previa" />
+              <button type="button" class="up-remove" id="logro-remove-img" aria-label="Eliminar imagen">✕</button>
+            </div>
+          </div>
+          <input type="hidden" id="logro-cert-data" />
+        </div>
+        <div class="mfooter">
+          <button type="button" class="btn-ghost" data-close="modal-logro">Cancelar</button>
+          <button type="submit" class="btn-red" id="logro-submit-btn">
+            <span class="btext">Guardar logro</span>
+            <span class="bload" hidden>Guardando…</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== MODAL VOLUNTARIADO ===== -->
+  <div class="modal-bg" id="modal-voluntariado" role="dialog" aria-modal="true" aria-labelledby="mt-vol" hidden>
+    <div class="modal">
+      <div class="modal-redline" aria-hidden="true"></div>
+      <div class="modal-head">
+        <h3 id="mt-vol" class="modal-title">NUEVO VOLUNTARIADO</h3>
+        <button class="modal-close" aria-label="Cerrar" data-close="modal-voluntariado">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="form-voluntariado" class="mform" novalidate>
+        <input type="hidden" id="vol-id" />
+        <div class="fr">
+          <div class="fg">
+            <label class="fl req" for="vol-titulo">Título / Actividad</label>
+            <input type="text" id="vol-titulo" class="fi" placeholder="Ej. Tutor de matemáticas…" required maxlength="200" />
+            <span class="fe" id="vol-titulo-err" role="alert"></span>
+          </div>
+          <div class="fg">
+            <label class="fl" for="vol-org">Organización</label>
+            <input type="text" id="vol-org" class="fi" placeholder="Ej. Cruz Roja…" maxlength="200" />
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl" for="vol-desc">Descripción</label>
+          <textarea id="vol-desc" class="fta" rows="3" placeholder="Describe la actividad…" maxlength="1000"></textarea>
+        </div>
+        <fieldset class="ffs">
+          <legend class="fl">Fechas</legend>
+          <div class="fr">
+            <div class="fg">
+              <label class="fl req" for="vol-fecha-inicio">Inicio</label>
+              <input type="date" id="vol-fecha-inicio" class="fi" required />
+              <span class="fe" id="vol-fecha-inicio-err" role="alert"></span>
+            </div>
+            <div class="fg">
+              <label class="fl" for="vol-fecha-fin">Fin</label>
+              <input type="date" id="vol-fecha-fin" class="fi" />
+              <label class="fcl"><input type="checkbox" id="vol-presente" class="fck" /><span>En curso / Presente</span></label>
+            </div>
+          </div>
+        </fieldset>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl" for="vol-rol">Rol / Cargo</label>
+            <input type="text" id="vol-rol" class="fi" placeholder="Ej. Coordinador…" maxlength="100" />
+          </div>
+          <div class="fg">
+            <label class="fl" for="vol-horas">Horas</label>
+            <input type="number" id="vol-horas" class="fi" placeholder="Ej. 40" min="0" max="99999" step="0.5" />
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Certificado / Imagen</label>
+          <div class="upzone" id="vol-upzone" role="button" tabindex="0">
+            <input type="file" id="vol-cert" class="upinput" accept="image/*" />
+            <div class="upinner" id="vol-upinner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Arrastra o haz clic</span>
+              <span class="up-hint">JPG, PNG — máx. 2MB</span>
+            </div>
+            <div class="uppreview" id="vol-uppreview" hidden>
+              <img id="vol-img-preview" src="" alt="Vista previa" />
+              <button type="button" class="up-remove" id="vol-remove-img" aria-label="Eliminar imagen">✕</button>
+            </div>
+          </div>
+          <input type="hidden" id="vol-cert-data" />
+        </div>
+        <div class="mfooter">
+          <button type="button" class="btn-ghost" data-close="modal-voluntariado">Cancelar</button>
+          <button type="submit" class="btn-red" id="vol-submit-btn">
+            <span class="btext">Guardar voluntariado</span>
+            <span class="bload" hidden>Guardando…</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== MODAL PERSONAL ===== -->
+  <div class="modal-bg" id="modal-personal" role="dialog" aria-modal="true" aria-labelledby="mt-pers" hidden>
+    <div class="modal">
+      <div class="modal-redline" aria-hidden="true"></div>
+      <div class="modal-head">
+        <h3 id="mt-pers" class="modal-title">LOGRO PERSONAL</h3>
+        <button class="modal-close" aria-label="Cerrar" data-close="modal-personal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="form-personal" class="mform" novalidate>
+        <input type="hidden" id="pers-id" />
+        <div class="fg">
+          <label class="fl req" for="pers-titulo">Título</label>
+          <input type="text" id="pers-titulo" class="fi" placeholder="Ej. Completar una maratón…" required maxlength="200" />
+          <span class="fe" id="pers-titulo-err" role="alert"></span>
+        </div>
+        <div class="fg">
+          <label class="fl" for="pers-desc">Descripción</label>
+          <textarea id="pers-desc" class="fta" rows="3" placeholder="Describe este logro personal…" maxlength="1000"></textarea>
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl" for="pers-puesto">Resultado</label>
+            <input type="text" id="pers-puesto" class="fi" placeholder="Ej. Personal best…" maxlength="100" />
+          </div>
+          <div class="fg">
+            <label class="fl" for="pers-beneficios">Beneficio</label>
+            <input type="text" id="pers-beneficios" class="fi" placeholder="Ej. Medalla…" maxlength="200" />
+          </div>
+        </div>
+        <fieldset class="ffs">
+          <legend class="fl">Fechas</legend>
+          <div class="fr">
+            <div class="fg">
+              <label class="fl" for="pers-fecha-inicio">Inicio</label>
+              <input type="date" id="pers-fecha-inicio" class="fi" />
+            </div>
+            <div class="fg">
+              <label class="fl" for="pers-fecha-fin">Fin</label>
+              <input type="date" id="pers-fecha-fin" class="fi" />
+              <label class="fcl"><input type="checkbox" id="pers-presente" class="fck" /><span>En curso / Presente</span></label>
+            </div>
+          </div>
+        </fieldset>
+        <div class="fg">
+          <label class="fl" for="pers-tags">Etiquetas</label>
+          <input type="text" id="pers-tags" class="fi" placeholder="salud, aprendizaje, familia…" maxlength="300" />
+          <span class="fh">Separa con comas</span>
+        </div>
+        <div class="fg">
+          <label class="fl">Certificado / Imagen</label>
+          <div class="upzone" id="pers-upzone" role="button" tabindex="0">
+            <input type="file" id="pers-cert" class="upinput" accept="image/*" />
+            <div class="upinner" id="pers-upinner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Arrastra o haz clic</span>
+              <span class="up-hint">JPG, PNG — máx. 2MB</span>
+            </div>
+            <div class="uppreview" id="pers-uppreview" hidden>
+              <img id="pers-img-preview" src="" alt="Vista previa" />
+              <button type="button" class="up-remove" id="pers-remove-img" aria-label="Eliminar imagen">✕</button>
+            </div>
+          </div>
+          <input type="hidden" id="pers-cert-data" />
+        </div>
+        <div class="mfooter">
+          <button type="button" class="btn-ghost" data-close="modal-personal">Cancelar</button>
+          <button type="submit" class="btn-red" id="pers-submit-btn">
+            <span class="btext">Guardar logro</span>
+            <span class="bload" hidden>Guardando…</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL VER IMAGEN -->
+  <div class="modal-bg" id="modal-image" role="dialog" aria-modal="true" aria-label="Certificado" hidden>
+    <div class="modal modal-imgview">
+      <button class="modal-close modal-close-float" aria-label="Cerrar" data-close="modal-image">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <img id="modal-img-src" src="" alt="Certificado ampliado" />
+    </div>
+  </div>
+
+  <!-- CONFIRM DELETE -->
+  <div class="modal-bg" id="modal-confirm" role="alertdialog" aria-modal="true" aria-labelledby="ctitle" hidden>
+    <div class="modal modal-sm">
+      <div class="modal-head">
+        <h3 id="ctitle" class="modal-title">CONFIRMAR ELIMINACIÓN</h3>
+      </div>
+      <p id="confirm-message" class="confirm-txt"></p>
+      <div class="mfooter">
+        <button class="btn-ghost" id="confirm-cancel">Cancelar</button>
+        <button class="btn-danger" id="confirm-ok">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
