@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * VAULT — app.js
+ * Meritora — app.js
  * Portfolio de Logros: Frontend + Canvas animation + Uploads
  * ============================================================
  */
@@ -495,9 +495,6 @@ function renderPagination(type) {
   el.innerHTML = html;
 }
 
-/* ============================================================
-   MODALES
-   ============================================================ */
 const MODAL = { logros: 'modal-logro', voluntariados: 'modal-voluntariado', personales: 'modal-personal' };
 
 function openModal(type, record = null) {
@@ -509,6 +506,17 @@ function openModal(type, record = null) {
   updateModalTitle(type, !!record);
   el.hidden = false;
   el.querySelector('.modal-close')?.focus();
+
+  // Si es un registro NUEVO (no edición), intentar restaurar borrador
+  if (!record) {
+    const restored = restoreDraft(type);
+    if (restored) {
+      showToast('📝 Borrador restaurado — continúa donde lo dejaste.', '');
+      showDraftIndicator(type);
+    }
+  } else {
+    hideDraftIndicator(type);
+  }
 }
 
 function closeModal(id) {
@@ -662,6 +670,154 @@ function collectVol() {
 }
 
 /* ============================================================
+   BORRADORES — Auto-guardado en localStorage
+   Guarda cada campo mientras el usuario escribe.
+   Si cierra el navegador y vuelve, el borrador se restaura.
+   ============================================================ */
+
+// Campos por tipo de formulario
+const DRAFT_FIELDS = {
+  logros: [
+    { id: 'logro-titulo',       type: 'text' },
+    { id: 'logro-desc',         type: 'text' },
+    { id: 'logro-puesto',       type: 'text' },
+    { id: 'logro-beneficios',   type: 'text' },
+    { id: 'logro-fecha-inicio', type: 'text' },
+    { id: 'logro-fecha-fin',    type: 'text' },
+    { id: 'logro-presente',     type: 'check' },
+    { id: 'logro-tags',         type: 'text' },
+    { id: 'logro-cert-data',    type: 'hidden' },
+  ],
+  voluntariados: [
+    { id: 'vol-titulo',         type: 'text' },
+    { id: 'vol-org',            type: 'text' },
+    { id: 'vol-desc',           type: 'text' },
+    { id: 'vol-fecha-inicio',   type: 'text' },
+    { id: 'vol-fecha-fin',      type: 'text' },
+    { id: 'vol-presente',       type: 'check' },
+    { id: 'vol-rol',            type: 'text' },
+    { id: 'vol-horas',          type: 'text' },
+    { id: 'vol-cert-data',      type: 'hidden' },
+  ],
+  personales: [
+    { id: 'pers-titulo',        type: 'text' },
+    { id: 'pers-desc',          type: 'text' },
+    { id: 'pers-puesto',        type: 'text' },
+    { id: 'pers-beneficios',    type: 'text' },
+    { id: 'pers-fecha-inicio',  type: 'text' },
+    { id: 'pers-fecha-fin',     type: 'text' },
+    { id: 'pers-presente',      type: 'check' },
+    { id: 'pers-tags',          type: 'text' },
+    { id: 'pers-cert-data',     type: 'hidden' },
+  ],
+};
+
+const DRAFT_KEY = type => `Meritora_draft_${type}`;
+
+/** Guarda el borrador actual del formulario en localStorage */
+function saveDraft(type) {
+  const fields = DRAFT_FIELDS[type];
+  if (!fields) return;
+
+  const draft = {};
+  fields.forEach(({ id, type: ftype }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    draft[id] = ftype === 'check' ? el.checked : el.value;
+  });
+
+  // Solo guardar si hay al menos un campo con contenido
+  const hasContent = Object.values(draft).some(v => v && v !== false && v !== '');
+  if (hasContent) {
+    localStorage.setItem(DRAFT_KEY(type), JSON.stringify(draft));
+    showDraftIndicator(type);
+  }
+}
+
+/** Restaura el borrador en el formulario */
+function restoreDraft(type) {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY(type));
+    if (!raw) return false;
+    const draft = JSON.parse(raw);
+
+    let restored = false;
+    DRAFT_FIELDS[type].forEach(({ id, type: ftype }) => {
+      const el = document.getElementById(id);
+      if (!el || draft[id] === undefined) return;
+
+      if (ftype === 'check') {
+        el.checked = Boolean(draft[id]);
+      } else {
+        el.value = draft[id] || '';
+      }
+
+      if (draft[id]) restored = true;
+    });
+
+    // Restaurar imagen si hay base64 guardado
+    const certKey = type === 'logros' ? 'logro-cert-data'
+                  : type === 'voluntariados' ? 'vol-cert-data' : 'pers-cert-data';
+    const prefix  = type === 'logros' ? 'logro'
+                  : type === 'voluntariados' ? 'vol' : 'pers';
+
+    if (draft[certKey] && draft[certKey].startsWith('data:image')) {
+      const imgEl     = document.getElementById(`${prefix}-img-preview`);
+      const upinner   = document.getElementById(`${prefix}-upinner`);
+      const uppreview = document.getElementById(`${prefix}-uppreview`);
+      if (imgEl)     imgEl.src        = draft[certKey];
+      if (upinner)   upinner.hidden   = true;
+      if (uppreview) uppreview.hidden = false;
+    }
+
+    // Restaurar estado del checkbox "presente"
+    const cbMap = { logros: 'logro-presente', voluntariados: 'vol-presente', personales: 'pers-presente' };
+    const inMap = { logros: 'logro-fecha-fin', voluntariados: 'vol-fecha-fin', personales: 'pers-fecha-fin' };
+    toggleDateFin(cbMap[type], inMap[type]);
+
+    return restored;
+  } catch {
+    return false;
+  }
+}
+
+/** Borra el borrador de localStorage */
+function clearDraft(type) {
+  localStorage.removeItem(DRAFT_KEY(type));
+  hideDraftIndicator(type);
+}
+
+/** Muestra el indicador "Borrador guardado" en el modal */
+function showDraftIndicator(type) {
+  const mid = MODAL[type];
+  let ind = document.getElementById(`${mid}-draft-ind`);
+  if (!ind) {
+    ind = document.createElement('span');
+    ind.id = `${mid}-draft-ind`;
+    ind.className = 'draft-indicator';
+    ind.textContent = '● Borrador guardado';
+    const head = document.querySelector(`#${mid} .modal-head`);
+    if (head) head.appendChild(ind);
+  }
+  ind.hidden = false;
+}
+
+function hideDraftIndicator(type) {
+  const ind = document.getElementById(`${MODAL[type]}-draft-ind`);
+  if (ind) ind.hidden = true;
+}
+
+/** Conecta los listeners de auto-guardado a todos los campos del formulario */
+function bindDraftListeners(type) {
+  DRAFT_FIELDS[type].forEach(({ id, type: ftype }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const event = ftype === 'check' ? 'change' : 'input';
+    el.addEventListener(event, () => saveDraft(type));
+  });
+}
+
+/* ============================================================
    SUBMIT
    ============================================================ */
 async function handleSubmit(type, collectFn, validateFn) {
@@ -679,6 +835,7 @@ async function handleSubmit(type, collectFn, validateFn) {
       showToast('✅ Registro actualizado.', 'success');
     } else {
       await apiCreate(type, data);
+      clearDraft(type); // ← borrar borrador solo al guardar con éxito
       showToast('✅ Registro creado.', 'success');
     }
     closeModal(mid);
@@ -902,6 +1059,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initUploadZone('pers-upzone', 'pers-cert', 'pers-upinner', 'pers-uppreview', 'pers-img-preview', 'pers-remove-img', 'pers-cert-data');
 
   bindEvents();
+
+  // ── Activar auto-guardado de borradores ──
+  bindDraftListeners('logros');
+  bindDraftListeners('voluntariados');
+  bindDraftListeners('personales');
 
   showToast('⏳ Cargando registros…', '');
   Promise.all([
