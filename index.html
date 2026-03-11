@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meritora — Portfolio de Logros</title>
+  <title>Meritora — Portfolio Personal</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -14,8 +14,11 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar" aria-label="Navegación">
     <div class="sidebar-brand">
-      <div class="brand-diamond" aria-hidden="true">
-        <svg viewBox="0 0 36 36" fill="none"><path d="M18 2 L34 18 L18 34 L2 18 Z" stroke="#3A7A96" stroke-width="1.5" fill="none"/><path d="M18 8 L28 18 L18 28 L8 18 Z" stroke="#A8CDD6" stroke-width="0.8" fill="rgba(58,122,150,0.15)"/></svg>
+      <div class="brand-logo-wrap">
+        <img src="logo.png" alt="Meritora" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="brand-diamond" style="display:none" aria-hidden="true">
+          <svg viewBox="0 0 90 90" fill="none"><path d="M45 4 L86 45 L45 86 L4 45 Z" stroke="#A8CDD6" stroke-width="2" fill="none"/><path d="M45 18 L72 45 L45 72 L18 45 Z" stroke="#A8CDD6" stroke-width="1.2" fill="rgba(168,205,214,0.12)"/><circle cx="45" cy="45" r="6" fill="rgba(168,205,214,0.35)"/></svg>
+        </div>
       </div>
       <div class="brand-text">
         <div class="brand-name">Meritora</div>
@@ -42,6 +45,12 @@
         <span class="nav-label">Personales</span>
         <span class="nav-bar" aria-hidden="true"></span>
       </button>
+      <button class="nav-item" data-section="estudios">
+        <span class="nav-num" aria-hidden="true">04</span>
+        <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        <span class="nav-label">Estudios</span>
+        <span class="nav-bar" aria-hidden="true"></span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -57,7 +66,10 @@
     <button class="burger" id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar">
       <span></span><span></span><span></span>
     </button>
-    <span class="topbar-name">Meritora</span>
+    <div class="topbar-logo-wrap">
+      <img src="logo.png" alt="Meritora" class="topbar-logo" onerror="this.style.display='none';" />
+      <span class="topbar-name">Meritora</span>
+    </div>
     <div aria-hidden="true" style="width:44px"></div>
   </header>
   <div class="overlay" id="overlay" aria-hidden="true"></div>
@@ -65,7 +77,7 @@
   <!-- MAIN CONTENT -->
   <main class="main" id="mainContent">
 
-    <!-- LOGROS -->
+    <!-- ═══ LOGROS ═══ -->
     <section id="section-logros" class="section active" aria-labelledby="h-logros">
       <header class="sec-hero">
         <div class="sec-hero-left">
@@ -86,7 +98,7 @@
       <div class="pagination" id="logros-pagination" role="navigation"></div>
     </section>
 
-    <!-- VOLUNTARIADOS -->
+    <!-- ═══ VOLUNTARIADOS ═══ -->
     <section id="section-voluntariados" class="section" aria-labelledby="h-vol" hidden>
       <header class="sec-hero">
         <div class="sec-hero-left">
@@ -107,13 +119,13 @@
       <div class="pagination" id="vol-pagination" role="navigation"></div>
     </section>
 
-    <!-- PERSONALES -->
+    <!-- ═══ PERSONALES ═══ -->
     <section id="section-personales" class="section" aria-labelledby="h-pers" hidden>
       <header class="sec-hero">
         <div class="sec-hero-left">
           <div class="sec-index" aria-hidden="true">/ 03</div>
           <h2 id="h-pers" class="sec-title">LOGROS<br>PERSONALES</h2>
-          <p class="sec-sub"><span class="badge-priv">Privado</span> Metas e hitos personales</p>
+          <p class="sec-sub"><span class="badge badge-priv">Privado</span> Metas e hitos personales</p>
         </div>
         <button class="add-btn" id="newPersBtn" aria-haspopup="dialog">
           <span class="add-btn-cross" aria-hidden="true">+</span>Nuevo logro
@@ -128,9 +140,87 @@
       <div class="pagination" id="pers-pagination" role="navigation"></div>
     </section>
 
+    <!-- ═══ ESTUDIOS ═══ -->
+    <section id="section-estudios" class="section" aria-labelledby="h-est" hidden>
+      <header class="sec-hero">
+        <div class="sec-hero-left">
+          <div class="sec-index" aria-hidden="true">/ 04</div>
+          <h2 id="h-est" class="sec-title">ESTUDIOS &amp;<br>ACADEMIA</h2>
+          <p class="sec-sub">Materias, tareas y apuntes académicos</p>
+        </div>
+      </header>
+
+      <!-- Sub-tabs: Materias / Tareas / Apuntes -->
+      <div class="estudios-tabs" role="tablist" aria-label="Módulo Estudios">
+        <button class="estudios-tab active" data-tab="materias" role="tab" aria-selected="true" aria-controls="est-section-materias">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          Materias
+        </button>
+        <button class="estudios-tab" data-tab="tareas" role="tab" aria-selected="false" aria-controls="est-section-tareas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Tareas
+        </button>
+        <button class="estudios-tab" data-tab="apuntes" role="tab" aria-selected="false" aria-controls="est-section-apuntes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Apuntes
+        </button>
+      </div>
+
+      <!-- ─── Sub-sección: MATERIAS ─── -->
+      <div id="est-section-materias" role="tabpanel">
+        <div class="estudios-actions">
+          <button class="add-btn" id="newMateriaBtn" aria-haspopup="dialog">
+            <span class="add-btn-cross" aria-hidden="true">+</span>Nueva materia
+          </button>
+        </div>
+        <div class="stats-strip" id="mat-stats" aria-live="polite"></div>
+        <div class="searchbar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="searchbar-ico" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="mat-search" class="searchbar-input" placeholder="Buscar por nombre, profesor, período…" aria-label="Buscar materias" />
+        </div>
+        <div class="grid" id="mat-list" role="list" aria-live="polite"></div>
+        <div class="pagination" id="mat-pagination" role="navigation"></div>
+      </div>
+
+      <!-- ─── Sub-sección: TAREAS ─── -->
+      <div id="est-section-tareas" role="tabpanel" hidden>
+        <div class="estudios-actions">
+          <button class="add-btn" id="newTareaBtn" aria-haspopup="dialog">
+            <span class="add-btn-cross" aria-hidden="true">+</span>Nueva tarea
+          </button>
+        </div>
+        <div class="stats-strip" id="tar-stats" aria-live="polite"></div>
+        <div class="searchbar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="searchbar-ico" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="tar-search" class="searchbar-input" placeholder="Buscar por título, materia…" aria-label="Buscar tareas" />
+        </div>
+        <div class="grid" id="tar-list" role="list" aria-live="polite"></div>
+        <div class="pagination" id="tar-pagination" role="navigation"></div>
+      </div>
+
+      <!-- ─── Sub-sección: APUNTES ─── -->
+      <div id="est-section-apuntes" role="tabpanel" hidden>
+        <div class="estudios-actions">
+          <button class="add-btn" id="newApunteBtn" aria-haspopup="dialog">
+            <span class="add-btn-cross" aria-hidden="true">+</span>Nuevo apunte
+          </button>
+        </div>
+        <div class="stats-strip" id="apu-stats" aria-live="polite"></div>
+        <div class="searchbar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="searchbar-ico" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="apu-search" class="searchbar-input" placeholder="Buscar por título, contenido…" aria-label="Buscar apuntes" />
+        </div>
+        <div class="grid" id="apu-list" role="list" aria-live="polite"></div>
+        <div class="pagination" id="apu-pagination" role="navigation"></div>
+      </div>
+
+    </section>
+
   </main>
 
-  <!-- ===== MODAL LOGRO ===== -->
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL — LOGRO
+  ═══════════════════════════════════════════════════════ -->
   <div class="modal-bg" id="modal-logro" role="dialog" aria-modal="true" aria-labelledby="mt-logro" hidden>
     <div class="modal">
       <div class="modal-redline" aria-hidden="true"></div>
@@ -149,16 +239,16 @@
         </div>
         <div class="fg">
           <label class="fl" for="logro-desc">Descripción</label>
-          <textarea id="logro-desc" class="fta" rows="3" placeholder="Describe brevemente este logro…" maxlength="1000"></textarea>
+          <textarea id="logro-desc" class="fta" rows="3" placeholder="Describe este logro…" maxlength="1000"></textarea>
         </div>
         <div class="fr">
           <div class="fg">
-            <label class="fl" for="logro-puesto">Puesto / Lugar</label>
+            <label class="fl" for="logro-puesto">Puesto / Resultado</label>
             <input type="text" id="logro-puesto" class="fi" placeholder="Ej. 1er lugar…" maxlength="100" />
           </div>
           <div class="fg">
             <label class="fl" for="logro-beneficios">Beneficios</label>
-            <input type="text" id="logro-beneficios" class="fi" placeholder="Ej. Beca, Premio…" maxlength="200" />
+            <input type="text" id="logro-beneficios" class="fi" placeholder="Ej. Beca, trofeo…" maxlength="200" />
           </div>
         </div>
         <fieldset class="ffs">
@@ -177,18 +267,17 @@
         </fieldset>
         <div class="fg">
           <label class="fl" for="logro-tags">Etiquetas</label>
-          <input type="text" id="logro-tags" class="fi" placeholder="tecnología, académico…" maxlength="300" />
+          <input type="text" id="logro-tags" class="fi" placeholder="tecnología, liderazgo, equipo…" maxlength="300" />
           <span class="fh">Separa con comas</span>
         </div>
-        <!-- CERTIFICADO -->
         <div class="fg">
           <label class="fl">Certificado / Imagen</label>
-          <div class="upzone" id="logro-upzone" role="button" tabindex="0" aria-label="Subir certificado">
+          <div class="upzone" id="logro-upzone" role="button" tabindex="0">
             <input type="file" id="logro-cert" class="upinput" accept="image/*" />
             <div class="upinner" id="logro-upinner">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               <span>Arrastra o haz clic</span>
-              <span class="up-hint">JPG, PNG — máx. 2MB (se comprime)</span>
+              <span class="up-hint">JPG, PNG — máx. 2MB</span>
             </div>
             <div class="uppreview" id="logro-uppreview" hidden>
               <img id="logro-img-preview" src="" alt="Vista previa" />
@@ -208,7 +297,9 @@
     </div>
   </div>
 
-  <!-- ===== MODAL VOLUNTARIADO ===== -->
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL — VOLUNTARIADO
+  ═══════════════════════════════════════════════════════ -->
   <div class="modal-bg" id="modal-voluntariado" role="dialog" aria-modal="true" aria-labelledby="mt-vol" hidden>
     <div class="modal">
       <div class="modal-redline" aria-hidden="true"></div>
@@ -220,20 +311,18 @@
       </div>
       <form id="form-voluntariado" class="mform" novalidate>
         <input type="hidden" id="vol-id" />
-        <div class="fr">
-          <div class="fg">
-            <label class="fl req" for="vol-titulo">Título / Actividad</label>
-            <input type="text" id="vol-titulo" class="fi" placeholder="Ej. Tutor de matemáticas…" required maxlength="200" />
-            <span class="fe" id="vol-titulo-err" role="alert"></span>
-          </div>
-          <div class="fg">
-            <label class="fl" for="vol-org">Organización</label>
-            <input type="text" id="vol-org" class="fi" placeholder="Ej. Cruz Roja…" maxlength="200" />
-          </div>
+        <div class="fg">
+          <label class="fl req" for="vol-titulo">Actividad / Nombre</label>
+          <input type="text" id="vol-titulo" class="fi" placeholder="Ej. Campaña de limpieza de playa…" required maxlength="200" />
+          <span class="fe" id="vol-titulo-err" role="alert"></span>
+        </div>
+        <div class="fg">
+          <label class="fl" for="vol-org">Organización</label>
+          <input type="text" id="vol-org" class="fi" placeholder="Ej. Cruz Roja, ONG local…" maxlength="200" />
         </div>
         <div class="fg">
           <label class="fl" for="vol-desc">Descripción</label>
-          <textarea id="vol-desc" class="fta" rows="3" placeholder="Describe la actividad…" maxlength="1000"></textarea>
+          <textarea id="vol-desc" class="fta" rows="3" placeholder="Describe tu participación…" maxlength="1000"></textarea>
         </div>
         <fieldset class="ffs">
           <legend class="fl">Fechas</legend>
@@ -287,7 +376,9 @@
     </div>
   </div>
 
-  <!-- ===== MODAL PERSONAL ===== -->
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL — LOGRO PERSONAL
+  ═══════════════════════════════════════════════════════ -->
   <div class="modal-bg" id="modal-personal" role="dialog" aria-modal="true" aria-labelledby="mt-pers" hidden>
     <div class="modal">
       <div class="modal-redline" aria-hidden="true"></div>
@@ -364,6 +455,192 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL — MATERIA
+  ═══════════════════════════════════════════════════════ -->
+  <div class="modal-bg" id="modal-materia" role="dialog" aria-modal="true" aria-labelledby="mt-mat" hidden>
+    <div class="modal">
+      <div class="modal-redline" aria-hidden="true"></div>
+      <div class="modal-head">
+        <h3 id="mt-mat" class="modal-title">NUEVA MATERIA</h3>
+        <button class="modal-close" aria-label="Cerrar" data-close="modal-materia">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="form-materia" class="mform" novalidate>
+        <input type="hidden" id="mat-id" />
+        <div class="fg">
+          <label class="fl req" for="mat-nombre">Nombre de la materia</label>
+          <input type="text" id="mat-nombre" class="fi" placeholder="Ej. Cálculo Diferencial, Inglés III…" required maxlength="200" />
+          <span class="fe" id="mat-nombre-err" role="alert"></span>
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl" for="mat-profesor">Profesor</label>
+            <input type="text" id="mat-profesor" class="fi" placeholder="Ej. Dr. García…" maxlength="150" />
+          </div>
+          <div class="fg">
+            <label class="fl" for="mat-periodo">Período académico</label>
+            <input type="text" id="mat-periodo" class="fi" placeholder="Ej. 2025-I, Semestre 2…" maxlength="50" />
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl" for="mat-desc">Descripción</label>
+          <textarea id="mat-desc" class="fta" rows="2" placeholder="Breve descripción de la materia…" maxlength="600"></textarea>
+        </div>
+        <fieldset class="ffs">
+          <legend class="fl">Fechas del período</legend>
+          <div class="fr">
+            <div class="fg">
+              <label class="fl" for="mat-inicio">Fecha de inicio</label>
+              <input type="date" id="mat-inicio" class="fi" />
+            </div>
+            <div class="fg">
+              <label class="fl" for="mat-fin">Fecha de finalización</label>
+              <input type="date" id="mat-fin" class="fi" />
+            </div>
+          </div>
+        </fieldset>
+        <div class="fg">
+          <label class="fl" for="mat-estado">Estado</label>
+          <select id="mat-estado" class="fi fsel">
+            <option value="en_curso">📖 En curso</option>
+            <option value="finalizada">✅ Finalizada</option>
+          </select>
+        </div>
+        <div class="mfooter">
+          <button type="button" class="btn-ghost" data-close="modal-materia">Cancelar</button>
+          <button type="submit" class="btn-red" id="mat-submit-btn">
+            <span class="btext">Guardar materia</span>
+            <span class="bload" hidden>Guardando…</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL — TAREA
+  ═══════════════════════════════════════════════════════ -->
+  <div class="modal-bg" id="modal-tarea" role="dialog" aria-modal="true" aria-labelledby="mt-tar" hidden>
+    <div class="modal">
+      <div class="modal-redline" aria-hidden="true"></div>
+      <div class="modal-head">
+        <h3 id="mt-tar" class="modal-title">NUEVA TAREA</h3>
+        <button class="modal-close" aria-label="Cerrar" data-close="modal-tarea">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="form-tarea" class="mform" novalidate>
+        <input type="hidden" id="tar-id" />
+        <div class="fg">
+          <label class="fl" for="tar-materia">Materia</label>
+          <select id="tar-materia" class="fi fsel">
+            <option value="">— Selecciona una materia —</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl req" for="tar-titulo">Título de la tarea</label>
+          <input type="text" id="tar-titulo" class="fi" placeholder="Ej. Tarea 1 — Ejercicios de límites…" required maxlength="200" />
+          <span class="fe" id="tar-titulo-err" role="alert"></span>
+        </div>
+        <div class="fg">
+          <label class="fl" for="tar-desc">Descripción / Instrucciones</label>
+          <textarea id="tar-desc" class="fta" rows="3" placeholder="Describe la tarea o pega las instrucciones…" maxlength="1000"></textarea>
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl" for="tar-asig">Fecha de asignación</label>
+            <input type="date" id="tar-asig" class="fi" />
+          </div>
+          <div class="fg">
+            <label class="fl" for="tar-entrega">Fecha de entrega</label>
+            <input type="date" id="tar-entrega" class="fi" />
+          </div>
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl" for="tar-estado">Estado</label>
+            <select id="tar-estado" class="fi fsel">
+              <option value="pendiente">⏳ Pendiente</option>
+              <option value="en_progreso">🔄 En progreso</option>
+              <option value="completada">✅ Completada</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl" for="tar-prioridad">Prioridad</label>
+            <select id="tar-prioridad" class="fi fsel">
+              <option value="baja">🟢 Baja</option>
+              <option value="media" selected>🟡 Media</option>
+              <option value="alta">🔴 Alta</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl" for="tar-enlace">Archivo o enlace (opcional)</label>
+          <input type="url" id="tar-enlace" class="fi" placeholder="https://…" maxlength="500" />
+        </div>
+        <div class="mfooter">
+          <button type="button" class="btn-ghost" data-close="modal-tarea">Cancelar</button>
+          <button type="submit" class="btn-red" id="tar-submit-btn">
+            <span class="btext">Guardar tarea</span>
+            <span class="bload" hidden>Guardando…</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL — APUNTE
+  ═══════════════════════════════════════════════════════ -->
+  <div class="modal-bg" id="modal-apunte" role="dialog" aria-modal="true" aria-labelledby="mt-apu" hidden>
+    <div class="modal">
+      <div class="modal-redline" aria-hidden="true"></div>
+      <div class="modal-head">
+        <h3 id="mt-apu" class="modal-title">NUEVO APUNTE</h3>
+        <button class="modal-close" aria-label="Cerrar" data-close="modal-apunte">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="form-apunte" class="mform" novalidate>
+        <input type="hidden" id="apu-id" />
+        <div class="fg">
+          <label class="fl" for="apu-materia">Materia</label>
+          <select id="apu-materia" class="fi fsel">
+            <option value="">— Selecciona una materia —</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl req" for="apu-titulo">Título del apunte</label>
+          <input type="text" id="apu-titulo" class="fi" placeholder="Ej. Clase 3 — Derivadas parciales…" required maxlength="200" />
+          <span class="fe" id="apu-titulo-err" role="alert"></span>
+        </div>
+        <div class="fg">
+          <label class="fl" for="apu-contenido">Contenido / Nota</label>
+          <textarea id="apu-contenido" class="fta" rows="6" placeholder="Escribe tu apunte aquí…" maxlength="3000"></textarea>
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl" for="apu-fecha">Fecha</label>
+            <input type="date" id="apu-fecha" class="fi" />
+          </div>
+          <div class="fg">
+            <label class="fl" for="apu-enlace">Enlace / Recurso (opcional)</label>
+            <input type="url" id="apu-enlace" class="fi" placeholder="https://…" maxlength="500" />
+          </div>
+        </div>
+        <div class="mfooter">
+          <button type="button" class="btn-ghost" data-close="modal-apunte">Cancelar</button>
+          <button type="submit" class="btn-red" id="apu-submit-btn">
+            <span class="btext">Guardar apunte</span>
+            <span class="bload" hidden>Guardando…</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL VER IMAGEN -->
   <div class="modal-bg" id="modal-image" role="dialog" aria-modal="true" aria-label="Certificado" hidden>
     <div class="modal modal-imgview">
@@ -377,6 +654,7 @@
   <!-- CONFIRM DELETE -->
   <div class="modal-bg" id="modal-confirm" role="alertdialog" aria-modal="true" aria-labelledby="ctitle" hidden>
     <div class="modal modal-sm">
+      <div class="modal-redline" aria-hidden="true"></div>
       <div class="modal-head">
         <h3 id="ctitle" class="modal-title">CONFIRMAR ELIMINACIÓN</h3>
       </div>

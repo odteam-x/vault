@@ -1,16 +1,17 @@
 /**
  * ============================================================
- * Meritora — app.js
- * Portfolio de Logros: Frontend + Canvas animation + Uploads
+ * Meritora — app.js  v2.0
+ * Módulos: Logros · Voluntariados · Personales · Estudios
+ * Nuevo:   Materias, Tareas, Apuntes + corrección de fechas
  * ============================================================
  */
 
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1YTn1QNSlkCPB5xoA54OdNFTrM2rXWeMPePjtt5yMgmBGnjRW0uLqeiB1G_rFLWrdjQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxn_ryDyrXkBSa5qoY1b0Key-7GOzS9kZ1k9stZDZ2vMT6h74qmrsWkGWn7xPy8ej_P7g/exec';
 
-const PAGE_SIZE    = 9;
-const TOAST_MS     = 3500;
-const MAX_IMG_PX   = 800;   // max lado al comprimir imagen
-const IMG_QUALITY  = 0.72;  // calidad JPEG
+const PAGE_SIZE  = 9;
+const TOAST_MS   = 3500;
+const MAX_IMG_PX = 800;
+const IMG_QUALITY = 0.72;
 
 /* ============================================================
    CANVAS ANIMATED BACKGROUND
@@ -27,44 +28,52 @@ function initCanvas() {
   resize();
   window.addEventListener('resize', resize);
 
-  // Partículas
-  const N = 55;
+  const N = 60;
   const particles = Array.from({ length: N }, () => ({
     x:    Math.random() * canvas.width,
     y:    Math.random() * canvas.height,
-    r:    Math.random() * 1.4 + 0.3,
-    vx:   (Math.random() - 0.5) * 0.3,
-    vy:   (Math.random() - 0.5) * 0.3,
+    r:    Math.random() * 1.6 + 0.3,
+    vx:   (Math.random() - 0.5) * 0.35,
+    vy:   (Math.random() - 0.5) * 0.35,
     alpha: Math.random() * 0.5 + 0.1,
-    red:  Math.random() < 0.28, // 28% son partículas rojas
+    red:  Math.random() < 0.22,
+    steel: Math.random() < 0.5,
   }));
 
-  // Líneas de grid
-  const GRID_LINES = 6;
-
+  const GRID_LINES = 7;
   let t = 0;
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    t += 0.008;
+    t += 0.007;
 
-    // Fondo radial sutil
-    const gr = ctx.createRadialGradient(
-      canvas.width * 0.7, canvas.height * 0.3, 0,
-      canvas.width * 0.7, canvas.height * 0.3, canvas.width * 0.65
+    // Radial glow top-right
+    const gr1 = ctx.createRadialGradient(
+      canvas.width * 0.85, canvas.height * 0.1, 0,
+      canvas.width * 0.85, canvas.height * 0.1, canvas.width * 0.55
     );
-    gr.addColorStop(0, 'rgba(58,122,150,0.08)');
-    gr.addColorStop(1, 'transparent');
-    ctx.fillStyle = gr;
+    gr1.addColorStop(0, 'rgba(58,122,150,0.12)');
+    gr1.addColorStop(1, 'transparent');
+    ctx.fillStyle = gr1;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Radial glow bottom-left
+    const gr2 = ctx.createRadialGradient(
+      canvas.width * 0.1, canvas.height * 0.9, 0,
+      canvas.width * 0.1, canvas.height * 0.9, canvas.width * 0.4
+    );
+    gr2.addColorStop(0, 'rgba(28,51,82,0.08)');
+    gr2.addColorStop(1, 'transparent');
+    ctx.fillStyle = gr2;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Grid diagonal animado
     ctx.save();
-    ctx.strokeStyle = 'rgba(168,205,214,0.04)';
+    ctx.strokeStyle = 'rgba(168,205,214,0.035)';
     ctx.lineWidth = 1;
     const spacing = canvas.width / GRID_LINES;
     for (let i = 0; i <= GRID_LINES * 2; i++) {
-      const offset = (i * spacing + t * 12) % (canvas.width + canvas.height);
+      const offset = (i * spacing + t * 10) % (canvas.width + canvas.height);
       ctx.beginPath();
       ctx.moveTo(offset - canvas.height, 0);
       ctx.lineTo(offset, canvas.height);
@@ -74,10 +83,9 @@ function initCanvas() {
 
     // Partículas
     particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
+      p.x += p.vx; p.y += p.vy;
       if (p.x < 0) p.x = canvas.width;
-      if (p.x > canvas.width) p.x = 0;
+      if (p.x > canvas.width)  p.x = 0;
       if (p.y < 0) p.y = canvas.height;
       if (p.y > canvas.height) p.y = 0;
 
@@ -85,7 +93,9 @@ function initCanvas() {
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle = p.red
         ? `rgba(224,48,58,${p.alpha})`
-        : `rgba(168,205,214,${p.alpha * 0.5})`;
+        : p.steel
+          ? `rgba(58,122,150,${p.alpha * 0.7})`
+          : `rgba(168,205,214,${p.alpha * 0.5})`;
       ctx.fill();
     });
 
@@ -95,27 +105,27 @@ function initCanvas() {
         const dx = particles[i].x - particles[j].x;
         const dy = particles[i].y - particles[j].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 110) {
+        if (dist < 120) {
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
-          const a = (1 - dist / 110) * 0.07;
+          const a = (1 - dist / 120) * 0.06;
           ctx.strokeStyle = (particles[i].red || particles[j].red)
             ? `rgba(224,48,58,${a})`
             : `rgba(168,205,214,${a * 0.6})`;
-          ctx.lineWidth = 0.8;
+          ctx.lineWidth = 0.7;
           ctx.stroke();
         }
       }
     }
 
-    // Orbe azul acero pulsante
-    const pulse = Math.sin(t * 1.8) * 0.3 + 0.7;
+    // Orbe pulsante principal
+    const pulse = Math.sin(t * 1.6) * 0.25 + 0.75;
     const orb = ctx.createRadialGradient(
-      canvas.width - 100, 80, 0,
-      canvas.width - 100, 80, 180 * pulse
+      canvas.width - 80, 60, 0,
+      canvas.width - 80, 60, 200 * pulse
     );
-    orb.addColorStop(0, 'rgba(58,122,150,0.07)');
+    orb.addColorStop(0, 'rgba(58,122,150,0.06)');
     orb.addColorStop(1, 'transparent');
     ctx.fillStyle = orb;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -131,31 +141,57 @@ function initCanvas() {
    ============================================================ */
 const state = {
   section: 'logros',
-  records: { logros: [], voluntariados: [], personales: [] },
-  filtered: { logros: [], voluntariados: [], personales: [] },
-  pages:   { logros: 1, voluntariados: 1, personales: 1 },
-  loading: { logros: false, voluntariados: false, personales: false },
-  loaded:  { logros: false, voluntariados: false, personales: false },
-  editingId: { logros: null, voluntariados: null, personales: null },
+  estudiosTab: 'materias',
+  records:  { logros: [], voluntariados: [], personales: [], materias: [], tareas: [], apuntes: [] },
+  filtered: { logros: [], voluntariados: [], personales: [], materias: [], tareas: [], apuntes: [] },
+  pages:    { logros: 1,  voluntariados: 1,  personales: 1,  materias: 1, tareas: 1, apuntes: 1 },
+  loading:  { logros: false, voluntariados: false, personales: false, materias: false, tareas: false, apuntes: false },
+  loaded:   { logros: false, voluntariados: false, personales: false, materias: false, tareas: false, apuntes: false },
+  editingId: { logros: null, voluntariados: null, personales: null, materias: null, tareas: null, apuntes: null },
   deleteCallback: null,
 };
 
 /* ============================================================
-   UTILIDADES
+   UTILIDADES — FORMATO DE FECHAS (CORREGIDO)
+
+   El backend ahora devuelve fechas como "2025-03-05" (ISO),
+   nunca como "Tue Mar 05 2025 00:00:00 GMT-0400...".
+   Las funciones fmt() y dateRange() esperan formato "yyyy-MM-dd".
    ============================================================ */
+
+/**
+ * fmt — Convierte "2025-03-05" en "05/03/2025"
+ * También acepta "2025-03-05T00:00:00.000Z" (ISO completo)
+ */
 function fmt(iso) {
-  if (!iso) return '';
-  const [y, m, d] = iso.split('-');
+  if (!iso || typeof iso !== 'string') return '';
+  // Tomar solo la parte de fecha si viene ISO completo
+  const datePart = iso.split('T')[0];
+  const parts = datePart.split('-');
+  if (parts.length !== 3) return iso; // devolver tal cual si formato inesperado
+  const [y, m, d] = parts;
+  if (!y || !m || !d) return '';
   return `${d}/${m}/${y}`;
+}
+
+/**
+ * fmtLong — Convierte "2025-03-05" en "5 de marzo de 2025"
+ */
+function fmtLong(iso) {
+  if (!iso) return '';
+  const datePart = iso.split('T')[0];
+  const [y, m, d] = datePart.split('-').map(Number);
+  if (!y || !m || !d) return fmt(iso);
+  const meses = ['enero','febrero','marzo','abril','mayo','junio',
+                  'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return `${d} de ${meses[m - 1]} de ${y}`;
 }
 
 function dateRange(start, end, presente) {
   const s = start ? fmt(start) : null;
-  const e = presente === 'true' || presente === true
-    ? 'Presente'
-    : (end ? fmt(end) : null);
+  const e = (presente === 'true' || presente === true) ? 'Presente' : (end ? fmt(end) : null);
   if (s && e) return `${s} — ${e}`;
-  if (s) return `${s}`;
+  if (s) return s;
   return e || '';
 }
 
@@ -177,38 +213,27 @@ function tagHtml(str) {
 
 /* ============================================================
    COMPRESIÓN DE IMAGEN
-   Redimensiona a MAX_IMG_PX y convierte a JPEG base64
    ============================================================ */
 function compressImage(file) {
   return new Promise((resolve, reject) => {
-    if (!file || !file.type.startsWith('image/')) {
-      resolve('');
-      return;
-    }
+    if (!file || !file.type.startsWith('image/')) { resolve(''); return; }
     if (file.size > 2 * 1024 * 1024) {
       showToast('❌ La imagen supera 2MB. Usa una más pequeña.', 'error');
-      resolve('');
-      return;
+      resolve(''); return;
     }
-
     const reader = new FileReader();
     reader.onload = e => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
         let { width, height } = img;
-
-        // Escalar
         if (width > MAX_IMG_PX || height > MAX_IMG_PX) {
           const ratio = Math.min(MAX_IMG_PX / width, MAX_IMG_PX / height);
-          width  = Math.round(width  * ratio);
+          width  = Math.round(width * ratio);
           height = Math.round(height * ratio);
         }
-
-        canvas.width  = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
         resolve(canvas.toDataURL('image/jpeg', IMG_QUALITY));
       };
       img.onerror = () => reject(new Error('No se pudo leer la imagen'));
@@ -220,7 +245,7 @@ function compressImage(file) {
 }
 
 /* ============================================================
-   UPLOAD ZONES — drag & drop + preview
+   UPLOAD ZONES
    ============================================================ */
 function initUploadZone(zoneId, inputId, innerId, previewId, imgId, removeId, hiddenId) {
   const zone    = document.getElementById(zoneId);
@@ -243,30 +268,20 @@ function initUploadZone(zoneId, inputId, innerId, previewId, imgId, removeId, hi
   }
 
   input.addEventListener('change', () => handleFile(input.files[0]));
-
-  // Drag & drop
   zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
   zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
   zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.classList.remove('drag-over');
+    e.preventDefault(); zone.classList.remove('drag-over');
     handleFile(e.dataTransfer.files[0]);
   });
-
-  // Keyboard accessibility
   zone.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
   });
-
-  // Remove image
   if (remove) {
     remove.addEventListener('click', e => {
       e.stopPropagation();
-      hidden.value = '';
-      imgEl.src = '';
-      input.value = '';
-      inner.hidden = false;
-      preview.hidden = true;
+      hidden.value = ''; imgEl.src = ''; input.value = '';
+      inner.hidden = false; preview.hidden = true;
     });
   }
 }
@@ -295,16 +310,15 @@ async function apiCall(action, type, data = {}) {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const text = await res.text();
   let json;
-  try { json = JSON.parse(text); }
-  catch { throw new Error('Respuesta inválida del servidor'); }
+  try { json = JSON.parse(text); } catch { throw new Error('Respuesta inválida del servidor'); }
   if (!json.ok) throw new Error(json.message || 'Error del servidor');
   return json;
 }
 
-const apiRead   = type       => apiCall('read',   type);
-const apiCreate = (type, d)  => apiCall('create', type, d);
+const apiRead   = type          => apiCall('read',   type);
+const apiCreate = (type, d)     => apiCall('create', type, d);
 const apiUpdate = (type, id, d) => apiCall('update', type, { ...d, id });
-const apiDelete = (type, id) => apiCall('delete', type, { id });
+const apiDelete = (type, id)    => apiCall('delete', type, { id });
 
 /* ============================================================
    CARGAR REGISTROS
@@ -312,7 +326,9 @@ const apiDelete = (type, id) => apiCall('delete', type, { id });
 async function loadRecords(type) {
   if (state.loading[type]) return;
   state.loading[type] = true;
-  renderList(type);
+
+  if (['logros','voluntariados','personales'].includes(type)) renderList(type);
+  else renderEstudiosList(type);
 
   try {
     const res = await apiRead(type);
@@ -335,23 +351,30 @@ async function loadRecords(type) {
    FILTRADO
    ============================================================ */
 function searchId(type) {
-  return type === 'voluntariados' ? 'vol-search'
-       : type === 'personales'   ? 'pers-search'
-       : 'logros-search';
+  const map = {
+    logros: 'logros-search', voluntariados: 'vol-search', personales: 'pers-search',
+    materias: 'mat-search', tareas: 'tar-search', apuntes: 'apu-search',
+  };
+  return map[type] || '';
 }
 
 function applyFilter(type) {
   const q = (document.getElementById(searchId(type))?.value || '').toLowerCase().trim();
   state.filtered[type] = q
     ? state.records[type].filter(r =>
-        (r.titulo        || '').toLowerCase().includes(q) ||
+        (r.titulo || r.nombre || '').toLowerCase().includes(q) ||
         (r.etiquetas     || '').toLowerCase().includes(q) ||
         (r.organizacion  || '').toLowerCase().includes(q) ||
-        (r.descripcion   || '').toLowerCase().includes(q)
+        (r.descripcion   || '').toLowerCase().includes(q) ||
+        (r.contenido     || '').toLowerCase().includes(q) ||
+        (r.profesor      || '').toLowerCase().includes(q) ||
+        (r.periodo       || '').toLowerCase().includes(q)
       )
     : [...state.records[type]];
   state.pages[type] = 1;
-  renderList(type);
+
+  if (['logros','voluntariados','personales'].includes(type)) renderList(type);
+  else renderEstudiosList(type);
   renderStats(type);
 }
 
@@ -359,9 +382,11 @@ function applyFilter(type) {
    STATS
    ============================================================ */
 function renderStats(type) {
-  const id = type === 'logros' ? 'logros-stats'
-           : type === 'voluntariados' ? 'vol-stats' : 'pers-stats';
-  const el = document.getElementById(id);
+  const idMap = {
+    logros: 'logros-stats', voluntariados: 'vol-stats', personales: 'pers-stats',
+    materias: 'mat-stats', tareas: 'tar-stats', apuntes: 'apu-stats',
+  };
+  const el = document.getElementById(idMap[type]);
   if (!el) return;
 
   const total    = state.records[type].length;
@@ -372,21 +397,34 @@ function renderStats(type) {
     const hrs = state.records[type].reduce((s, r) => s + (parseFloat(r.horas) || 0), 0);
     if (hrs > 0) html += `<div class="stat-chip red"><strong>${hrs.toLocaleString()}</strong>&nbsp;hrs acumuladas</div>`;
     const activos = state.records[type].filter(r => r.presente === 'true').length;
-    if (activos > 0) html += `<div class="stat-chip"><strong>${activos}</strong>&nbsp;activos</div>`;
+    if (activos) html += `<div class="stat-chip"><strong>${activos}</strong>&nbsp;activos</div>`;
+  }
+
+  if (type === 'materias') {
+    const enCurso   = state.records[type].filter(r => r.estado === 'en_curso').length;
+    const finalizadas = state.records[type].filter(r => r.estado === 'finalizada').length;
+    if (enCurso)    html += `<div class="stat-chip blue"><strong>${enCurso}</strong>&nbsp;en curso</div>`;
+    if (finalizadas) html += `<div class="stat-chip"><strong>${finalizadas}</strong>&nbsp;finalizadas</div>`;
+  }
+
+  if (type === 'tareas') {
+    const pend  = state.records[type].filter(r => r.estado === 'pendiente').length;
+    const prog  = state.records[type].filter(r => r.estado === 'en_progreso').length;
+    const comp  = state.records[type].filter(r => r.estado === 'completada').length;
+    if (pend) html += `<div class="stat-chip red"><strong>${pend}</strong>&nbsp;pendientes</div>`;
+    if (prog) html += `<div class="stat-chip blue"><strong>${prog}</strong>&nbsp;en progreso</div>`;
+    if (comp) html += `<div class="stat-chip"><strong>${comp}</strong>&nbsp;completadas</div>`;
   }
 
   if (filtered < total) html += `<div class="stat-chip"><strong>${filtered}</strong>&nbsp;resultados</div>`;
-
   el.innerHTML = html;
 }
 
 /* ============================================================
-   RENDER LIST
+   RENDER LIST (Logros / Voluntariados / Personales)
    ============================================================ */
 function listId(type) {
-  return type === 'voluntariados' ? 'vol-list'
-       : type === 'personales'   ? 'pers-list'
-       : 'logros-list';
+  return type === 'voluntariados' ? 'vol-list' : type === 'personales' ? 'pers-list' : 'logros-list';
 }
 
 function renderList(type) {
@@ -401,45 +439,39 @@ function renderList(type) {
   const items = state.filtered[type];
   if (!items.length) {
     const icon = type === 'logros' ? '🏆' : type === 'voluntariados' ? '❤️' : '⭐';
-    el.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">${icon}</div>
-        <p>Aún no hay registros aquí.<br>¡Agrega el primero!</p>
-      </div>`;
-    renderPagination(type);
-    return;
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">${icon}</div><p>Aún no hay registros aquí.<br>¡Agrega el primero!</p></div>`;
+    renderPagination(type); return;
   }
 
   const page  = state.pages[type];
   const start = (page - 1) * PAGE_SIZE;
   const slice = items.slice(start, start + PAGE_SIZE);
-
   el.innerHTML = slice.map((r, i) => buildCard(type, r, i)).join('');
   renderPagination(type);
 }
 
 /* ============================================================
-   BUILD CARD
+   BUILD CARD (Logros / Voluntariados / Personales)
    ============================================================ */
 function buildCard(type, r, idx) {
-  const dr  = dateRange(r.fechaInicio, r.fechaFin, r.presente);
-  const isP = r.presente === 'true' || r.presente === true;
-  const delay = Math.min(idx * 60, 400);
+  const dr    = dateRange(r.fechaInicio, r.fechaFin, r.presente);
+  const isP   = r.presente === 'true' || r.presente === true;
+  const delay = Math.min(idx * 55, 400);
 
   let imgHtml = '';
-  if (r.certificado && r.certificado.startsWith('data:image')) {
-    imgHtml = `<img class="card-img-banner" src="${r.certificado}" alt="Certificado" loading="lazy" data-cert="${esc(r.certificado)}" />`;
+  const cert = r.certificado || r.imagen;
+  if (cert && cert.startsWith('data:image')) {
+    imgHtml = `<img class="card-img-banner" src="${cert}" alt="Certificado" loading="lazy" data-cert="${esc(cert)}" />`;
   }
 
   let meta = '';
-  if (dr) meta += `<span class="badge badge-date">📅 ${esc(dr)}</span>`;
+  if (dr)  meta += `<span class="badge badge-date">📅 ${esc(dr)}</span>`;
   if (isP) meta += `<span class="badge badge-presente">● En curso</span>`;
 
   if (type === 'logros' || type === 'personales') {
-    if (r.puesto) meta += `<span class="badge badge-lugar">🏅 ${esc(r.puesto)}</span>`;
-    if (r.beneficios) meta += `<span class="badge badge-tag">🎁 ${esc(r.beneficios)}</span>`;
+    if (r.puesto)      meta += `<span class="badge badge-lugar">🏅 ${esc(r.puesto)}</span>`;
+    if (r.beneficios)  meta += `<span class="badge badge-tag">🎁 ${esc(r.beneficios)}</span>`;
   }
-
   if (type === 'voluntariados') {
     if (r.organizacion) meta += `<span class="badge badge-org">🏢 ${esc(r.organizacion)}</span>`;
     if (r.rol)          meta += `<span class="badge badge-tag">👤 ${esc(r.rol)}</span>`;
@@ -457,10 +489,10 @@ function buildCard(type, r, idx) {
         <div class="card-top">
           <h3 class="card-title">${esc(r.titulo)}</h3>
           <div class="card-actions">
-            <button class="ico-btn edit-btn" aria-label="Editar ${esc(r.titulo)}" data-id="${esc(r.id)}" data-type="${esc(type)}">
+            <button class="ico-btn edit-btn" aria-label="Editar" data-id="${esc(r.id)}" data-type="${esc(type)}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
-            <button class="ico-btn del delete-btn" aria-label="Eliminar ${esc(r.titulo)}" data-id="${esc(r.id)}" data-type="${esc(type)}">
+            <button class="ico-btn del delete-btn" aria-label="Eliminar" data-id="${esc(r.id)}" data-type="${esc(type)}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
             </button>
           </div>
@@ -476,9 +508,11 @@ function buildCard(type, r, idx) {
    PAGINATION
    ============================================================ */
 function paginId(type) {
-  return type === 'voluntariados' ? 'vol-pagination'
-       : type === 'personales'   ? 'pers-pagination'
-       : 'logros-pagination';
+  const map = {
+    logros: 'logros-pagination', voluntariados: 'vol-pagination', personales: 'pers-pagination',
+    materias: 'mat-pagination', tareas: 'tar-pagination', apuntes: 'apu-pagination',
+  };
+  return map[type] || '';
 }
 
 function renderPagination(type) {
@@ -487,14 +521,17 @@ function renderPagination(type) {
   const total = Math.ceil(state.filtered[type].length / PAGE_SIZE);
   if (total <= 1) { el.innerHTML = ''; return; }
   const cur = state.pages[type];
-  let html = `<button class="pg-btn" ${cur===1?'disabled':''} data-page="${cur-1}" data-type="${type}" aria-label="Anterior">‹</button>`;
+  let html = `<button class="pg-btn" ${cur===1?'disabled':''} data-page="${cur-1}" data-type="${type}">‹</button>`;
   for (let i = 1; i <= total; i++) {
     html += `<button class="pg-btn ${i===cur?'active':''}" data-page="${i}" data-type="${type}" ${i===cur?'aria-current="page"':''}>${i}</button>`;
   }
-  html += `<button class="pg-btn" ${cur===total?'disabled':''} data-page="${cur+1}" data-type="${type}" aria-label="Siguiente">›</button>`;
+  html += `<button class="pg-btn" ${cur===total?'disabled':''} data-page="${cur+1}" data-type="${type}">›</button>`;
   el.innerHTML = html;
 }
 
+/* ============================================================
+   MODAL LOGROS / VOLUNTARIADOS / PERSONALES
+   ============================================================ */
 const MODAL = { logros: 'modal-logro', voluntariados: 'modal-voluntariado', personales: 'modal-personal' };
 
 function openModal(type, record = null) {
@@ -506,12 +543,10 @@ function openModal(type, record = null) {
   updateModalTitle(type, !!record);
   el.hidden = false;
   el.querySelector('.modal-close')?.focus();
-
-  // Si es un registro NUEVO (no edición), intentar restaurar borrador
   if (!record) {
     const restored = restoreDraft(type);
     if (restored) {
-      showToast('📝 Borrador restaurado — continúa donde lo dejaste.', '');
+      showToast('📝 Borrador restaurado.', '');
       showDraftIndicator(type);
     }
   } else {
@@ -527,15 +562,15 @@ function closeModal(id) {
 
 function updateModalTitle(type, isEdit) {
   const titles = {
-    logros:        isEdit ? 'EDITAR LOGRO'        : 'NUEVO LOGRO',
+    logros:        isEdit ? 'EDITAR LOGRO'         : 'NUEVO LOGRO',
     voluntariados: isEdit ? 'EDITAR VOLUNTARIADO'  : 'NUEVO VOLUNTARIADO',
     personales:    isEdit ? 'EDITAR LOGRO PERSONAL': 'LOGRO PERSONAL',
   };
   const id = MODAL[type];
-  const el = document.querySelector(`#${id} .modal-title`);
-  if (el) el.textContent = titles[type];
-  const btn = document.querySelector(`#${id} .btext`);
-  if (btn) btn.textContent = isEdit ? 'Guardar cambios' : (type === 'voluntariados' ? 'Guardar voluntariado' : 'Guardar logro');
+  const titleEl = document.querySelector(`#${id} .modal-title`);
+  if (titleEl) titleEl.textContent = titles[type];
+  const btnEl = document.querySelector(`#${id} .btext`);
+  if (btnEl) btnEl.textContent = isEdit ? 'Guardar cambios' : (type === 'voluntariados' ? 'Guardar voluntariado' : 'Guardar logro');
 }
 
 function fillForm(type, r) {
@@ -550,17 +585,12 @@ function fillForm(type, r) {
     c(`${p}-presente`, r?.presente === 'true');
     v(`${p}-tags`, r?.etiquetas);
     toggleDateFin(`${p}-presente`, `${p}-fecha-fin`);
-
-    // Precargar imagen si existe
-    const uppreview = document.getElementById(`${p}-uppreview`);
-    const upinner   = document.getElementById(`${p}-upinner`);
-    const imgEl     = document.getElementById(`${p}-img-preview`);
-    const hidden    = document.getElementById(`${p}-cert-data`);
-    if (r?.certificado && r.certificado.startsWith('data:image')) {
-      if (hidden)  hidden.value   = r.certificado;
-      if (imgEl)   imgEl.src      = r.certificado;
-      if (upinner) upinner.hidden = true;
-      if (uppreview) uppreview.hidden = false;
+    const cert = r?.certificado || r?.imagen;
+    if (cert && cert.startsWith('data:image')) {
+      document.getElementById(`${p}-cert-data`).value   = cert;
+      document.getElementById(`${p}-img-preview`).src   = cert;
+      document.getElementById(`${p}-upinner`).hidden    = true;
+      document.getElementById(`${p}-uppreview`).hidden  = false;
     } else {
       resetUploadZone(`${p}-upinner`, `${p}-uppreview`, `${p}-img-preview`, `${p}-cert-data`);
     }
@@ -572,16 +602,12 @@ function fillForm(type, r) {
     v('vol-fecha-fin', r?.fechaFin); c('vol-presente', r?.presente === 'true');
     v('vol-rol', r?.rol); v('vol-horas', r?.horas);
     toggleDateFin('vol-presente', 'vol-fecha-fin');
-
-    const hidden = document.getElementById('vol-cert-data');
-    const imgEl  = document.getElementById('vol-img-preview');
-    const uppreview = document.getElementById('vol-uppreview');
-    const upinner   = document.getElementById('vol-upinner');
-    if (r?.certificado && r.certificado.startsWith('data:image')) {
-      if (hidden)  hidden.value = r.certificado;
-      if (imgEl)   imgEl.src   = r.certificado;
-      if (upinner) upinner.hidden = true;
-      if (uppreview) uppreview.hidden = false;
+    const cert = r?.certificado || r?.imagen;
+    if (cert && cert.startsWith('data:image')) {
+      document.getElementById('vol-cert-data').value    = cert;
+      document.getElementById('vol-img-preview').src    = cert;
+      document.getElementById('vol-upinner').hidden     = true;
+      document.getElementById('vol-uppreview').hidden   = false;
     } else {
       resetUploadZone('vol-upinner', 'vol-uppreview', 'vol-img-preview', 'vol-cert-data');
     }
@@ -594,7 +620,7 @@ function clearErrs(modalId) {
 }
 
 function toggleDateFin(cbId, inputId) {
-  const cb = document.getElementById(cbId);
+  const cb  = document.getElementById(cbId);
   const inp = document.getElementById(inputId);
   if (!cb || !inp) return;
   inp.disabled = cb.checked;
@@ -609,8 +635,7 @@ function valTitulo(prefix) {
   const err = document.getElementById(`${prefix}-titulo-err`);
   if (!el?.value.trim()) {
     if (err) err.textContent = 'El título es obligatorio.';
-    el?.classList.add('err');
-    el?.focus();
+    el?.classList.add('err'); el?.focus();
     return false;
   }
   if (err) err.textContent = '';
@@ -624,8 +649,7 @@ function valVoluntariado() {
   const err = document.getElementById('vol-fecha-inicio-err');
   if (!fi?.value) {
     if (err) err.textContent = 'La fecha de inicio es obligatoria.';
-    fi?.classList.add('err');
-    if (ok) fi?.focus();
+    fi?.classList.add('err'); if (ok) fi?.focus();
     ok = false;
   } else {
     if (err) err.textContent = '';
@@ -637,183 +661,126 @@ function valVoluntariado() {
 /* ============================================================
    RECOLECTAR DATOS
    ============================================================ */
-function gv(id) { return document.getElementById(id)?.value?.trim() || ''; }
-function gc(id) { return document.getElementById(id)?.checked ? 'true' : 'false'; }
-function gh(id) { return document.getElementById(id)?.value || ''; }
+const gv = id => document.getElementById(id)?.value?.trim() || '';
+const gc = id => document.getElementById(id)?.checked ? 'true' : 'false';
+const gh = id => document.getElementById(id)?.value || '';
 
 function collectLogro(p) {
   return {
-    titulo:      gv(`${p}-titulo`),
-    descripcion: gv(`${p}-desc`),
-    puesto:      gv(`${p}-puesto`),
-    beneficios:  gv(`${p}-beneficios`),
-    fechaInicio: gv(`${p}-fecha-inicio`),
-    fechaFin:    gv(`${p}-fecha-fin`),
-    presente:    gc(`${p}-presente`),
-    etiquetas:   gv(`${p}-tags`),
-    certificado: gh(`${p}-cert-data`),
+    titulo: gv(`${p}-titulo`), descripcion: gv(`${p}-desc`),
+    puesto: gv(`${p}-puesto`), beneficios: gv(`${p}-beneficios`),
+    fechaInicio: gv(`${p}-fecha-inicio`), fechaFin: gv(`${p}-fecha-fin`),
+    presente: gc(`${p}-presente`), etiquetas: gv(`${p}-tags`),
+    imagen: gh(`${p}-cert-data`),
   };
 }
 
 function collectVol() {
   return {
-    titulo:       gv('vol-titulo'),
-    organizacion: gv('vol-org'),
-    descripcion:  gv('vol-desc'),
-    fechaInicio:  gv('vol-fecha-inicio'),
-    fechaFin:     gv('vol-fecha-fin'),
-    presente:     gc('vol-presente'),
-    rol:          gv('vol-rol'),
-    horas:        gv('vol-horas'),
-    certificado:  gh('vol-cert-data'),
+    titulo: gv('vol-titulo'), organizacion: gv('vol-org'),
+    descripcion: gv('vol-desc'), fechaInicio: gv('vol-fecha-inicio'),
+    fechaFin: gv('vol-fecha-fin'), presente: gc('vol-presente'),
+    rol: gv('vol-rol'), horas: gv('vol-horas'), imagen: gh('vol-cert-data'),
   };
 }
 
 /* ============================================================
-   BORRADORES — Auto-guardado en localStorage
-   Guarda cada campo mientras el usuario escribe.
-   Si cierra el navegador y vuelve, el borrador se restaura.
+   BORRADORES
    ============================================================ */
-
-// Campos por tipo de formulario
 const DRAFT_FIELDS = {
   logros: [
-    { id: 'logro-titulo',       type: 'text' },
-    { id: 'logro-desc',         type: 'text' },
-    { id: 'logro-puesto',       type: 'text' },
-    { id: 'logro-beneficios',   type: 'text' },
-    { id: 'logro-fecha-inicio', type: 'text' },
-    { id: 'logro-fecha-fin',    type: 'text' },
-    { id: 'logro-presente',     type: 'check' },
-    { id: 'logro-tags',         type: 'text' },
-    { id: 'logro-cert-data',    type: 'hidden' },
+    { id: 'logro-titulo', type: 'text' }, { id: 'logro-desc', type: 'text' },
+    { id: 'logro-puesto', type: 'text' }, { id: 'logro-beneficios', type: 'text' },
+    { id: 'logro-fecha-inicio', type: 'text' }, { id: 'logro-fecha-fin', type: 'text' },
+    { id: 'logro-presente', type: 'check' }, { id: 'logro-tags', type: 'text' },
+    { id: 'logro-cert-data', type: 'hidden' },
   ],
   voluntariados: [
-    { id: 'vol-titulo',         type: 'text' },
-    { id: 'vol-org',            type: 'text' },
-    { id: 'vol-desc',           type: 'text' },
-    { id: 'vol-fecha-inicio',   type: 'text' },
-    { id: 'vol-fecha-fin',      type: 'text' },
-    { id: 'vol-presente',       type: 'check' },
-    { id: 'vol-rol',            type: 'text' },
-    { id: 'vol-horas',          type: 'text' },
-    { id: 'vol-cert-data',      type: 'hidden' },
+    { id: 'vol-titulo', type: 'text' }, { id: 'vol-org', type: 'text' },
+    { id: 'vol-desc', type: 'text' }, { id: 'vol-fecha-inicio', type: 'text' },
+    { id: 'vol-fecha-fin', type: 'text' }, { id: 'vol-presente', type: 'check' },
+    { id: 'vol-rol', type: 'text' }, { id: 'vol-horas', type: 'text' },
+    { id: 'vol-cert-data', type: 'hidden' },
   ],
   personales: [
-    { id: 'pers-titulo',        type: 'text' },
-    { id: 'pers-desc',          type: 'text' },
-    { id: 'pers-puesto',        type: 'text' },
-    { id: 'pers-beneficios',    type: 'text' },
-    { id: 'pers-fecha-inicio',  type: 'text' },
-    { id: 'pers-fecha-fin',     type: 'text' },
-    { id: 'pers-presente',      type: 'check' },
-    { id: 'pers-tags',          type: 'text' },
-    { id: 'pers-cert-data',     type: 'hidden' },
+    { id: 'pers-titulo', type: 'text' }, { id: 'pers-desc', type: 'text' },
+    { id: 'pers-puesto', type: 'text' }, { id: 'pers-beneficios', type: 'text' },
+    { id: 'pers-fecha-inicio', type: 'text' }, { id: 'pers-fecha-fin', type: 'text' },
+    { id: 'pers-presente', type: 'check' }, { id: 'pers-tags', type: 'text' },
+    { id: 'pers-cert-data', type: 'hidden' },
   ],
 };
 
 const DRAFT_KEY = type => `Meritora_draft_${type}`;
 
-/** Guarda el borrador actual del formulario en localStorage */
 function saveDraft(type) {
   const fields = DRAFT_FIELDS[type];
   if (!fields) return;
-
   const draft = {};
   fields.forEach(({ id, type: ftype }) => {
     const el = document.getElementById(id);
     if (!el) return;
     draft[id] = ftype === 'check' ? el.checked : el.value;
   });
-
-  // Solo guardar si hay al menos un campo con contenido
-  const hasContent = Object.values(draft).some(v => v && v !== false && v !== '');
-  if (hasContent) {
+  if (Object.values(draft).some(v => v && v !== false && v !== '')) {
     localStorage.setItem(DRAFT_KEY(type), JSON.stringify(draft));
     showDraftIndicator(type);
   }
 }
 
-/** Restaura el borrador en el formulario */
 function restoreDraft(type) {
   try {
     const raw = localStorage.getItem(DRAFT_KEY(type));
     if (!raw) return false;
     const draft = JSON.parse(raw);
-
     let restored = false;
     DRAFT_FIELDS[type].forEach(({ id, type: ftype }) => {
       const el = document.getElementById(id);
       if (!el || draft[id] === undefined) return;
-
-      if (ftype === 'check') {
-        el.checked = Boolean(draft[id]);
-      } else {
-        el.value = draft[id] || '';
-      }
-
+      ftype === 'check' ? (el.checked = Boolean(draft[id])) : (el.value = draft[id] || '');
       if (draft[id]) restored = true;
     });
-
-    // Restaurar imagen si hay base64 guardado
-    const certKey = type === 'logros' ? 'logro-cert-data'
-                  : type === 'voluntariados' ? 'vol-cert-data' : 'pers-cert-data';
-    const prefix  = type === 'logros' ? 'logro'
-                  : type === 'voluntariados' ? 'vol' : 'pers';
-
-    if (draft[certKey] && draft[certKey].startsWith('data:image')) {
-      const imgEl     = document.getElementById(`${prefix}-img-preview`);
-      const upinner   = document.getElementById(`${prefix}-upinner`);
-      const uppreview = document.getElementById(`${prefix}-uppreview`);
-      if (imgEl)     imgEl.src        = draft[certKey];
-      if (upinner)   upinner.hidden   = true;
-      if (uppreview) uppreview.hidden = false;
+    const prefixes = { logros: 'logro', voluntariados: 'vol', personales: 'pers' };
+    const p = prefixes[type];
+    const certKey = `${p}-cert-data`;
+    if (draft[certKey]?.startsWith('data:image')) {
+      document.getElementById(`${p}-img-preview`).src   = draft[certKey];
+      document.getElementById(`${p}-upinner`).hidden    = true;
+      document.getElementById(`${p}-uppreview`).hidden  = false;
     }
-
-    // Restaurar estado del checkbox "presente"
     const cbMap = { logros: 'logro-presente', voluntariados: 'vol-presente', personales: 'pers-presente' };
     const inMap = { logros: 'logro-fecha-fin', voluntariados: 'vol-fecha-fin', personales: 'pers-fecha-fin' };
     toggleDateFin(cbMap[type], inMap[type]);
-
     return restored;
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
-/** Borra el borrador de localStorage */
 function clearDraft(type) {
   localStorage.removeItem(DRAFT_KEY(type));
   hideDraftIndicator(type);
 }
 
-/** Muestra el indicador "Borrador guardado" en el modal */
 function showDraftIndicator(type) {
-  const mid = MODAL[type];
+  const mid = MODAL[type]; if (!mid) return;
   let ind = document.getElementById(`${mid}-draft-ind`);
   if (!ind) {
     ind = document.createElement('span');
     ind.id = `${mid}-draft-ind`;
     ind.className = 'draft-indicator';
     ind.textContent = '● Borrador guardado';
-    const head = document.querySelector(`#${mid} .modal-head`);
-    if (head) head.appendChild(ind);
+    document.querySelector(`#${mid} .modal-head`)?.appendChild(ind);
   }
   ind.hidden = false;
 }
-
 function hideDraftIndicator(type) {
   const ind = document.getElementById(`${MODAL[type]}-draft-ind`);
   if (ind) ind.hidden = true;
 }
-
-/** Conecta los listeners de auto-guardado a todos los campos del formulario */
 function bindDraftListeners(type) {
-  DRAFT_FIELDS[type].forEach(({ id, type: ftype }) => {
+  (DRAFT_FIELDS[type] || []).forEach(({ id, type: ftype }) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const event = ftype === 'check' ? 'change' : 'input';
-    el.addEventListener(event, () => saveDraft(type));
+    el.addEventListener(ftype === 'check' ? 'change' : 'input', () => saveDraft(type));
   });
 }
 
@@ -835,7 +802,7 @@ async function handleSubmit(type, collectFn, validateFn) {
       showToast('✅ Registro actualizado.', 'success');
     } else {
       await apiCreate(type, data);
-      clearDraft(type); // ← borrar borrador solo al guardar con éxito
+      clearDraft(type);
       showToast('✅ Registro creado.', 'success');
     }
     closeModal(mid);
@@ -851,13 +818,22 @@ async function handleSubmit(type, collectFn, validateFn) {
    ELIMINAR
    ============================================================ */
 function confirmDelete(type, id, title) {
-  document.getElementById('confirm-message').textContent =
-    `¿Eliminar "${title}"? Esta acción no se puede deshacer.`;
+  const msg = type === 'materias'
+    ? `¿Eliminar la materia "${title}"? También se eliminarán todas sus tareas y apuntes. Esta acción no se puede deshacer.`
+    : `¿Eliminar "${title}"? Esta acción no se puede deshacer.`;
+  document.getElementById('confirm-message').textContent = msg;
   state.deleteCallback = async () => {
     try {
       await apiDelete(type, id);
       showToast('🗑️ Registro eliminado.', 'success');
       await loadRecords(type);
+      if (type === 'materias') {
+        // Recargar tareas y apuntes ya que hubo cascade
+        state.loaded.tareas  = false;
+        state.loaded.apuntes = false;
+        if (state.estudiosTab === 'tareas')  loadRecords('tareas');
+        if (state.estudiosTab === 'apuntes') loadRecords('apuntes');
+      }
     } catch (err) {
       showToast(`❌ ${err.message}`, 'error');
     }
@@ -869,28 +845,368 @@ function confirmDelete(type, id, title) {
    EXPORTAR CSV
    ============================================================ */
 function exportCSV() {
-  const type  = state.section;
+  const type  = state.section === 'estudios' ? state.estudiosTab : state.section;
   const items = state.filtered[type];
   if (!items.length) { showToast('No hay registros para exportar.', 'error'); return; }
 
-  const headers = type === 'voluntariados'
-    ? ['ID','Título','Organización','Descripción','Fecha Inicio','Fecha Fin','Presente','Rol','Horas','Creado','Actualizado']
-    : ['ID','Título','Descripción','Puesto','Beneficios','Fecha Inicio','Fecha Fin','Presente','Etiquetas','Creado','Actualizado'];
-
-  const rows = items.map(r => type === 'voluntariados'
-    ? [r.id, r.titulo, r.organizacion, r.descripcion, r.fechaInicio, r.fechaFin, r.presente, r.rol, r.horas, r.createdAt, r.updatedAt]
-    : [r.id, r.titulo, r.descripcion, r.puesto, r.beneficios, r.fechaInicio, r.fechaFin, r.presente, r.etiquetas, r.createdAt, r.updatedAt]
-  );
+  const headers = Object.keys(items[0]);
+  const rows    = items.map(r => headers.map(h => r[h] || ''));
 
   const csv = [headers, ...rows]
-    .map(row => row.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(','))
+    .map(row => row.map(c => `"${String(c).replace(/"/g,'""')}"`).join(','))
     .join('\n');
 
   const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
-  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${type}_${new Date().toISOString().split('T')[0]}.csv` });
-  a.click();
-  URL.revokeObjectURL(a.href);
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(blob),
+    download: `${type}_${new Date().toISOString().split('T')[0]}.csv`,
+  });
+  a.click(); URL.revokeObjectURL(a.href);
   showToast(`📥 CSV exportado — ${items.length} registros.`, 'success');
+}
+
+/* ============================================================
+   ╔════════════════════════════════════╗
+   ║      MÓDULO ESTUDIOS               ║
+   ╚════════════════════════════════════╝
+   ============================================================ */
+
+/* ── Sub-tabs ── */
+function switchEstudiosTab(tab) {
+  state.estudiosTab = tab;
+  document.querySelectorAll('.estudios-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  ['materias','tareas','apuntes'].forEach(t => {
+    const sec = document.getElementById(`est-section-${t}`);
+    if (sec) sec.hidden = t !== tab;
+  });
+  if (!state.loaded[tab] && !state.loading[tab]) {
+    loadRecords(tab);
+  } else {
+    renderEstudiosList(tab);
+    renderStats(tab);
+  }
+}
+
+/* ── Render listas ── */
+function renderEstudiosList(type) {
+  const listIds = { materias: 'mat-list', tareas: 'tar-list', apuntes: 'apu-list' };
+  const el = document.getElementById(listIds[type]);
+  if (!el) return;
+
+  if (state.loading[type]) {
+    el.innerHTML = `<div class="spinner-wrap"><div class="spinner" role="status" aria-label="Cargando"></div></div>`;
+    return;
+  }
+
+  const items = state.filtered[type];
+  if (!items.length) {
+    const icons = { materias: '📚', tareas: '📝', apuntes: '📒' };
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">${icons[type]}</div><p>Sin registros aún.<br>¡Agrega el primero!</p></div>`;
+    renderPagination(type); return;
+  }
+
+  const page  = state.pages[type];
+  const start = (page - 1) * PAGE_SIZE;
+  const slice = items.slice(start, start + PAGE_SIZE);
+
+  if (type === 'materias')  el.innerHTML = slice.map((r, i) => buildMateriaCard(r, i)).join('');
+  if (type === 'tareas')    el.innerHTML = slice.map((r, i) => buildTareaCard(r, i)).join('');
+  if (type === 'apuntes')   el.innerHTML = slice.map((r, i) => buildApunteCard(r, i)).join('');
+
+  renderPagination(type);
+}
+
+/* ── Cards de Materias ── */
+function buildMateriaCard(r, idx) {
+  const dr    = dateRange(r.fechaInicio, r.fechaFin, r.estado === 'en_curso' ? 'true' : 'false');
+  const delay = Math.min(idx * 55, 400);
+  const color = r.color || '#3A7A96';
+  const estadoBadge = r.estado === 'en_curso'
+    ? `<span class="badge badge-presente">● En curso</span>`
+    : `<span class="badge badge-org">✓ Finalizada</span>`;
+  // Contar tareas y apuntes de esta materia
+  const numTareas  = state.records.tareas.filter(t => t.materiaId === r.id).length;
+  const numApuntes = state.records.apuntes.filter(a => a.materiaId === r.id).length;
+
+  return `
+    <article class="card materia-card" role="listitem" data-id="${esc(r.id)}" data-type="materias"
+      style="animation-delay:${delay}ms; --mat-color:${color}">
+      <div class="materia-color-bar" style="background:${color}"></div>
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <h3 class="card-title">${esc(r.nombre)}</h3>
+            ${r.periodo ? `<span class="badge badge-date">🗓 ${esc(r.periodo)}</span>` : ''}
+          </div>
+          <div class="card-actions">
+            <button class="ico-btn edit-btn" aria-label="Editar" data-id="${esc(r.id)}" data-type="materias">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="ico-btn del delete-btn" aria-label="Eliminar" data-id="${esc(r.id)}" data-type="materias">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="card-meta">
+          ${estadoBadge}
+          ${r.profesor ? `<span class="badge badge-tag">👨‍🏫 ${esc(r.profesor)}</span>` : ''}
+          ${dr ? `<span class="badge badge-date">📅 ${esc(dr)}</span>` : ''}
+        </div>
+        ${r.descripcion ? `<p class="card-desc">${esc(r.descripcion)}</p>` : ''}
+        <div class="materia-counts">
+          <span class="mat-count" data-tab="tareas" data-materia-id="${esc(r.id)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            ${numTareas} tarea${numTareas !== 1 ? 's' : ''}
+          </span>
+          <span class="mat-count" data-tab="apuntes" data-materia-id="${esc(r.id)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            ${numApuntes} apunte${numApuntes !== 1 ? 's' : ''}
+          </span>
+        </div>
+      </div>
+    </article>`;
+}
+
+/* ── Cards de Tareas ── */
+function buildTareaCard(r, idx) {
+  const delay = Math.min(idx * 55, 400);
+  const materia = state.records.materias.find(m => m.id === r.materiaId);
+  const color = materia?.color || '#3A7A96';
+
+  const estadoClass = { pendiente: 'badge-red', en_progreso: 'badge-blue', completada: 'badge-green' };
+  const estadoLabel = { pendiente: '⏳ Pendiente', en_progreso: '🔄 En progreso', completada: '✅ Completada' };
+  const priorClass  = { baja: 'badge-tag', media: 'badge-date', alta: 'badge-red' };
+  const priorLabel  = { baja: '🟢 Baja', media: '🟡 Media', alta: '🔴 Alta' };
+
+  const entrega = r.fechaEntrega ? `<span class="badge badge-date">📅 Entrega: ${fmt(r.fechaEntrega)}</span>` : '';
+  const asig    = r.fechaAsig    ? `<span class="badge badge-date">📋 Asignada: ${fmt(r.fechaAsig)}</span>` : '';
+
+  return `
+    <article class="card tarea-card" role="listitem" data-id="${esc(r.id)}" data-type="tareas"
+      style="animation-delay:${delay}ms; --mat-color:${color}">
+      <div class="materia-color-bar" style="background:${color}"></div>
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <h3 class="card-title">${esc(r.titulo)}</h3>
+            ${materia ? `<span class="materia-ref" style="color:${color}">📚 ${esc(materia.nombre)}</span>` : ''}
+          </div>
+          <div class="card-actions">
+            <button class="ico-btn edit-btn" aria-label="Editar" data-id="${esc(r.id)}" data-type="tareas">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="ico-btn del delete-btn" aria-label="Eliminar" data-id="${esc(r.id)}" data-type="tareas">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="card-meta">
+          ${r.estado    ? `<span class="badge ${estadoClass[r.estado]||'badge-tag'}">${estadoLabel[r.estado]||r.estado}</span>` : ''}
+          ${r.prioridad ? `<span class="badge ${priorClass[r.prioridad]||'badge-tag'}">${priorLabel[r.prioridad]||r.prioridad}</span>` : ''}
+          ${asig}${entrega}
+        </div>
+        ${r.descripcion ? `<p class="card-desc">${esc(r.descripcion)}</p>` : ''}
+        ${r.enlace ? `<a href="${esc(r.enlace)}" class="card-link" target="_blank" rel="noopener">🔗 Ver recurso</a>` : ''}
+      </div>
+    </article>`;
+}
+
+/* ── Cards de Apuntes ── */
+function buildApunteCard(r, idx) {
+  const delay = Math.min(idx * 55, 400);
+  const materia = state.records.materias.find(m => m.id === r.materiaId);
+  const color = materia?.color || '#3A7A96';
+
+  return `
+    <article class="card apunte-card" role="listitem" data-id="${esc(r.id)}" data-type="apuntes"
+      style="animation-delay:${delay}ms; --mat-color:${color}">
+      <div class="materia-color-bar" style="background:${color}"></div>
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <h3 class="card-title">${esc(r.titulo)}</h3>
+            ${materia ? `<span class="materia-ref" style="color:${color}">📚 ${esc(materia.nombre)}</span>` : ''}
+          </div>
+          <div class="card-actions">
+            <button class="ico-btn edit-btn" aria-label="Editar" data-id="${esc(r.id)}" data-type="apuntes">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="ico-btn del delete-btn" aria-label="Eliminar" data-id="${esc(r.id)}" data-type="apuntes">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="card-meta">
+          ${r.fecha ? `<span class="badge badge-date">📅 ${fmt(r.fecha)}</span>` : ''}
+        </div>
+        ${r.contenido ? `<p class="card-desc apunte-contenido">${esc(r.contenido)}</p>` : ''}
+        ${r.enlace ? `<a href="${esc(r.enlace)}" class="card-link" target="_blank" rel="noopener">🔗 Ver recurso</a>` : ''}
+      </div>
+    </article>`;
+}
+
+/* ── Modales Estudios ── */
+function openEstudiosModal(type, record = null) {
+  const modalIds = { materias: 'modal-materia', tareas: 'modal-tarea', apuntes: 'modal-apunte' };
+  const id = modalIds[type];
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  state.editingId[type] = record?.id || null;
+  fillEstudiosForm(type, record);
+
+  const title = document.querySelector(`#${id} .modal-title`);
+  const btn   = document.querySelector(`#${id} .btext`);
+  const isEdit = !!record;
+  const labels = {
+    materias: isEdit ? 'EDITAR MATERIA'   : 'NUEVA MATERIA',
+    tareas:   isEdit ? 'EDITAR TAREA'     : 'NUEVA TAREA',
+    apuntes:  isEdit ? 'EDITAR APUNTE'    : 'NUEVO APUNTE',
+  };
+  const btnLabels = {
+    materias: isEdit ? 'Guardar cambios' : 'Guardar materia',
+    tareas:   isEdit ? 'Guardar cambios' : 'Guardar tarea',
+    apuntes:  isEdit ? 'Guardar cambios' : 'Guardar apunte',
+  };
+  if (title) title.textContent = labels[type];
+  if (btn)   btn.textContent   = btnLabels[type];
+
+  el.hidden = false;
+  el.querySelector('.modal-close')?.focus();
+}
+
+function fillEstudiosForm(type, r) {
+  const v = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  const c = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+
+  if (type === 'materias') {
+    v('mat-id', r?.id); v('mat-nombre', r?.nombre); v('mat-profesor', r?.profesor);
+    v('mat-desc', r?.descripcion); v('mat-periodo', r?.periodo);
+    v('mat-inicio', r?.fechaInicio); v('mat-fin', r?.fechaFin);
+    v('mat-estado', r?.estado || 'en_curso');
+  }
+
+  if (type === 'tareas') {
+    v('tar-id', r?.id); v('tar-titulo', r?.titulo); v('tar-desc', r?.descripcion);
+    v('tar-asig', r?.fechaAsig); v('tar-entrega', r?.fechaEntrega);
+    v('tar-estado', r?.estado || 'pendiente'); v('tar-prioridad', r?.prioridad || 'media');
+    v('tar-enlace', r?.enlace);
+    // Rellenar selector de materias
+    populateMateriaSelect('tar-materia', r?.materiaId);
+  }
+
+  if (type === 'apuntes') {
+    v('apu-id', r?.id); v('apu-titulo', r?.titulo); v('apu-contenido', r?.contenido);
+    v('apu-fecha', r?.fecha); v('apu-enlace', r?.enlace);
+    populateMateriaSelect('apu-materia', r?.materiaId);
+  }
+}
+
+/** Rellena un <select> con las materias disponibles */
+function populateMateriaSelect(selectId, selectedId) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const materias = state.records.materias;
+  sel.innerHTML = `<option value="">— Selecciona una materia —</option>` +
+    materias.map(m =>
+      `<option value="${esc(m.id)}" ${m.id === selectedId ? 'selected' : ''}>${esc(m.nombre)}${m.periodo ? ` (${esc(m.periodo)})` : ''}</option>`
+    ).join('');
+}
+
+function collectMateria() {
+  return {
+    nombre: gv('mat-nombre'), profesor: gv('mat-profesor'),
+    descripcion: gv('mat-desc'), periodo: gv('mat-periodo'),
+    fechaInicio: gv('mat-inicio'), fechaFin: gv('mat-fin'),
+    estado: gv('mat-estado'),
+  };
+}
+
+function collectTarea() {
+  return {
+    materiaId: gv('tar-materia'), titulo: gv('tar-titulo'),
+    descripcion: gv('tar-desc'), fechaAsig: gv('tar-asig'),
+    fechaEntrega: gv('tar-entrega'), estado: gv('tar-estado'),
+    prioridad: gv('tar-prioridad'), enlace: gv('tar-enlace'),
+  };
+}
+
+function collectApunte() {
+  return {
+    materiaId: gv('apu-materia'), titulo: gv('apu-titulo'),
+    contenido: gv('apu-contenido'), fecha: gv('apu-fecha'),
+    enlace: gv('apu-enlace'),
+  };
+}
+
+function valMateria() {
+  const el  = document.getElementById('mat-nombre');
+  const err = document.getElementById('mat-nombre-err');
+  if (!el?.value.trim()) {
+    if (err) err.textContent = 'El nombre de la materia es obligatorio.';
+    el?.classList.add('err'); el?.focus();
+    return false;
+  }
+  if (err) err.textContent = ''; el.classList.remove('err');
+  return true;
+}
+
+function valTarea() {
+  const el  = document.getElementById('tar-titulo');
+  const err = document.getElementById('tar-titulo-err');
+  if (!el?.value.trim()) {
+    if (err) err.textContent = 'El título de la tarea es obligatorio.';
+    el?.classList.add('err'); el?.focus();
+    return false;
+  }
+  if (err) err.textContent = ''; el.classList.remove('err');
+  return true;
+}
+
+function valApunte() {
+  const el  = document.getElementById('apu-titulo');
+  const err = document.getElementById('apu-titulo-err');
+  if (!el?.value.trim()) {
+    if (err) err.textContent = 'El título del apunte es obligatorio.';
+    el?.classList.add('err'); el?.focus();
+    return false;
+  }
+  if (err) err.textContent = ''; el.classList.remove('err');
+  return true;
+}
+
+async function handleEstudiosSubmit(type, collectFn, validateFn) {
+  if (!validateFn()) return;
+  const data   = collectFn();
+  const editId = state.editingId[type];
+  const modalIds = { materias: 'modal-materia', tareas: 'modal-tarea', apuntes: 'modal-apunte' };
+  const mid    = modalIds[type];
+  const btn    = document.querySelector(`#${mid} .btn-red`);
+
+  if (btn) { btn.querySelector('.btext').hidden = true; btn.querySelector('.bload').hidden = false; btn.disabled = true; }
+
+  try {
+    if (editId) {
+      await apiUpdate(type, editId, data);
+      showToast('✅ Registro actualizado.', 'success');
+    } else {
+      await apiCreate(type, data);
+      showToast('✅ Registro creado.', 'success');
+    }
+    closeModal(mid);
+    await loadRecords(type);
+    // Si es materia, también recargar tareas/apuntes para actualizar contadores
+    if (type === 'materias') {
+      await Promise.all([loadRecords('tareas'), loadRecords('apuntes')]);
+      renderEstudiosList('materias');
+    }
+  } catch (err) {
+    showToast(`❌ ${err.message}`, 'error');
+  } finally {
+    if (btn) { btn.querySelector('.btext').hidden = false; btn.querySelector('.bload').hidden = true; btn.disabled = false; }
+  }
 }
 
 /* ============================================================
@@ -901,9 +1217,8 @@ function showToast(msg, type = '') {
   const el = document.getElementById('toast');
   if (!el) return;
   clearTimeout(toastTimer);
-  el.textContent = msg;
-  el.className   = `toast ${type}`;
-  el.hidden      = false;
+  el.textContent = msg; el.className = `toast ${type}`;
+  el.hidden = false;
   toastTimer = setTimeout(() => { el.hidden = true; }, TOAST_MS);
 }
 
@@ -919,12 +1234,18 @@ function switchSection(section) {
     b.setAttribute('aria-current', active ? 'page' : 'false');
   });
 
-  ['logros','voluntariados','personales'].forEach(s => {
+  ['logros','voluntariados','personales','estudios'].forEach(s => {
     const el = document.getElementById(`section-${s}`);
     if (el) el.hidden = s !== section;
   });
 
-  if (!state.loaded[section] && !state.loading[section]) {
+  if (section === 'estudios') {
+    // Cargar todas las sub-secciones si no están cargadas
+    ['materias','tareas','apuntes'].forEach(t => {
+      if (!state.loaded[t] && !state.loading[t]) loadRecords(t);
+    });
+    switchEstudiosTab(state.estudiosTab);
+  } else if (!state.loaded[section] && !state.loading[section]) {
     loadRecords(section);
   }
 }
@@ -956,34 +1277,44 @@ function bindEvents() {
   document.getElementById('hamburgerBtn')?.addEventListener('click', () => toggleSidebar());
   document.getElementById('overlay')?.addEventListener('click', () => toggleSidebar(false));
 
-  // New buttons
-  [['newLogroBtn','logros'],['newVolBtn','voluntariados'],['newPersBtn','personales']].forEach(([id, type]) => {
-    document.getElementById(id)?.addEventListener('click', () => openModal(type));
-  });
+  // New buttons (logros/vol/pers)
+  [['newLogroBtn','logros'],['newVolBtn','voluntariados'],['newPersBtn','personales']].forEach(([id, type]) =>
+    document.getElementById(id)?.addEventListener('click', () => openModal(type))
+  );
+
+  // New buttons (estudios)
+  document.getElementById('newMateriaBtn')?.addEventListener('click', () => openEstudiosModal('materias'));
+  document.getElementById('newTareaBtn')?.addEventListener('click',   () => { populateMateriaSelect('tar-materia', null); openEstudiosModal('tareas'); });
+  document.getElementById('newApunteBtn')?.addEventListener('click',  () => { populateMateriaSelect('apu-materia', null); openEstudiosModal('apuntes'); });
+
+  // Estudios sub-tabs
+  document.querySelectorAll('.estudios-tab').forEach(btn =>
+    btn.addEventListener('click', () => switchEstudiosTab(btn.dataset.tab))
+  );
 
   // Modal close buttons
   document.querySelectorAll('[data-close]').forEach(b =>
     b.addEventListener('click', () => closeModal(b.dataset.close))
   );
 
-  // Close on backdrop click
-  ['modal-logro','modal-voluntariado','modal-personal','modal-image'].forEach(id => {
+  // Backdrop click to close modals
+  ['modal-logro','modal-voluntariado','modal-personal','modal-materia','modal-tarea','modal-apunte','modal-image'].forEach(id => {
     document.getElementById(id)?.addEventListener('click', e => { if (e.target.id === id) closeModal(id); });
   });
 
   // ESC key
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    ['modal-logro','modal-voluntariado','modal-personal','modal-confirm','modal-image']
+    ['modal-logro','modal-voluntariado','modal-personal','modal-materia','modal-tarea','modal-apunte','modal-confirm','modal-image']
       .forEach(id => { const el = document.getElementById(id); if (el && !el.hidden) closeModal(id); });
   });
 
-  // Checkbox "presente"
+  // Checkboxes "presente"
   [['logro-presente','logro-fecha-fin'],['vol-presente','vol-fecha-fin'],['pers-presente','pers-fecha-fin']].forEach(([cb, inp]) =>
     document.getElementById(cb)?.addEventListener('change', () => toggleDateFin(cb, inp))
   );
 
-  // Form submits
+  // Form submits — existentes
   document.getElementById('form-logro')?.addEventListener('submit', e => {
     e.preventDefault();
     handleSubmit('logros', () => collectLogro('logro'), () => valTitulo('logro'));
@@ -997,30 +1328,71 @@ function bindEvents() {
     handleSubmit('personales', () => collectLogro('pers'), () => valTitulo('pers'));
   });
 
-  // Search
-  document.getElementById('logros-search')?.addEventListener('input', () => applyFilter('logros'));
-  document.getElementById('vol-search')?.addEventListener('input', () => applyFilter('voluntariados'));
-  document.getElementById('pers-search')?.addEventListener('input', () => applyFilter('personales'));
+  // Form submits — estudios
+  document.getElementById('form-materia')?.addEventListener('submit', e => {
+    e.preventDefault();
+    handleEstudiosSubmit('materias', collectMateria, valMateria);
+  });
+  document.getElementById('form-tarea')?.addEventListener('submit', e => {
+    e.preventDefault();
+    handleEstudiosSubmit('tareas', collectTarea, valTarea);
+  });
+  document.getElementById('form-apunte')?.addEventListener('submit', e => {
+    e.preventDefault();
+    handleEstudiosSubmit('apuntes', collectApunte, valApunte);
+  });
 
-  // Delegated: pagination, edit, delete, image zoom
+  // Búsquedas
+  document.getElementById('logros-search')?.addEventListener('input', () => applyFilter('logros'));
+  document.getElementById('vol-search')?.addEventListener('input',    () => applyFilter('voluntariados'));
+  document.getElementById('pers-search')?.addEventListener('input',   () => applyFilter('personales'));
+  document.getElementById('mat-search')?.addEventListener('input',    () => applyFilter('materias'));
+  document.getElementById('tar-search')?.addEventListener('input',    () => applyFilter('tareas'));
+  document.getElementById('apu-search')?.addEventListener('input',    () => applyFilter('apuntes'));
+
+  // Delegated en mainContent
   document.getElementById('mainContent')?.addEventListener('click', e => {
     // Pagination
     const pg = e.target.closest('.pg-btn');
-    if (pg?.dataset.type) { state.pages[pg.dataset.type] = +pg.dataset.page; renderList(pg.dataset.type); return; }
+    if (pg?.dataset.type) {
+      state.pages[pg.dataset.type] = +pg.dataset.page;
+      const tipo = pg.dataset.type;
+      if (['logros','voluntariados','personales'].includes(tipo)) renderList(tipo);
+      else renderEstudiosList(tipo);
+      return;
+    }
 
     // Edit
     const ed = e.target.closest('.edit-btn');
     if (ed) {
-      const r = state.records[ed.dataset.type]?.find(x => x.id === ed.dataset.id);
-      if (r) openModal(ed.dataset.type, r);
+      const type = ed.dataset.type;
+      const r    = state.records[type]?.find(x => x.id === ed.dataset.id);
+      if (!r) return;
+      if (['logros','voluntariados','personales'].includes(type)) openModal(type, r);
+      else openEstudiosModal(type, r);
       return;
     }
 
     // Delete
     const dl = e.target.closest('.delete-btn');
     if (dl) {
-      const r = state.records[dl.dataset.type]?.find(x => x.id === dl.dataset.id);
-      if (r) confirmDelete(dl.dataset.type, dl.dataset.id, r.titulo);
+      const type = dl.dataset.type;
+      const r    = state.records[type]?.find(x => x.id === dl.dataset.id);
+      if (r) confirmDelete(type, dl.dataset.id, r.titulo || r.nombre);
+      return;
+    }
+
+    // Mat-count link: navegar a tareas/apuntes filtrando por materia
+    const mc = e.target.closest('.mat-count[data-tab]');
+    if (mc) {
+      switchEstudiosTab(mc.dataset.tab);
+      // Filtrar por materia
+      const searchEl = document.getElementById(mc.dataset.tab === 'tareas' ? 'tar-search' : 'apu-search');
+      const materia  = state.records.materias.find(m => m.id === mc.dataset.materiaId);
+      if (searchEl && materia) {
+        searchEl.value = materia.nombre;
+        applyFilter(mc.dataset.tab);
+      }
       return;
     }
 
@@ -1053,14 +1425,11 @@ function bindEvents() {
 document.addEventListener('DOMContentLoaded', () => {
   initCanvas();
 
-  // Init upload zones
   initUploadZone('logro-upzone','logro-cert','logro-upinner','logro-uppreview','logro-img-preview','logro-remove-img','logro-cert-data');
   initUploadZone('vol-upzone',  'vol-cert',  'vol-upinner',  'vol-uppreview',  'vol-img-preview',  'vol-remove-img',  'vol-cert-data');
   initUploadZone('pers-upzone', 'pers-cert', 'pers-upinner', 'pers-uppreview', 'pers-img-preview', 'pers-remove-img', 'pers-cert-data');
 
   bindEvents();
-
-  // ── Activar auto-guardado de borradores ──
   bindDraftListeners('logros');
   bindDraftListeners('voluntariados');
   bindDraftListeners('personales');
